@@ -10,6 +10,8 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	lastPosition = racer->body->getPosition();
 	currentWaypoint = 0;
 	currentLap = 1;
+	overallPosition = 0;
+	placement = 1;
 	checkPointTimer = new CheckpointTimer(racer);
 	speedBoost = new Ability(SPEED);
 	laser = new Ability(LASER);
@@ -298,6 +300,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		oldTime = newTime;
 	}
 
+	overallPosition = currentWaypoint + (currentLap-1)*80; // 80 represent the number of waypoints
+
 	
 }
 
@@ -325,11 +329,27 @@ int AIMind::getCheckpointTime()
 // When an AI reaches its waypoint, it will update its goal to the next waypoint
 void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[])
 {
-	if(waypoints[currentWaypoint]->withinWaypoint(&racer->body->getPosition())){
+	int prevWaypoint;
+	if(currentWaypoint - 1 == -1){
+		prevWaypoint = 79;
+	}
+	else{
+		prevWaypoint = currentWaypoint - 1;
+	}
+	D3DXVECTOR3 current = waypoints[currentWaypoint]->drawable->getPosition();
+	hkVector4* currentPos = new hkVector4(current.x, current.y, current.z);
+	D3DXVECTOR3 prev = waypoints[prevWaypoint]->drawable->getPosition();
+	hkVector4* prevPos = new hkVector4(prev.x, prev.y, prev.z);
+
+	hkSimdReal distanceOfRacer = waypoints[currentWaypoint]->wpPosition.distanceTo(getRacerPosition());
+
+	if(waypoints[currentWaypoint]->passedWaypoint(currentPos, prevPos, &racer->body->getPosition())){
 		if(waypoints[currentWaypoint]->getWaypointType() == LAP_POINT){
 			currentLap += 1;
 		}
-
+	}
+	if(waypoints[currentWaypoint]->passedWaypoint(currentPos, prevPos, &racer->body->getPosition())
+		|| (distanceOfRacer.isLess(30) && waypoints[currentWaypoint]->getWaypointType() != LAP_POINT)){
 		if(currentWaypoint == 79){
 			currentWaypoint = 0;
 		}
@@ -379,6 +399,29 @@ int AIMind::getCurrentWaypoint()
 int AIMind::getSpeedCooldown()
 {
 	return speedBoost->getCooldownTime();
+}
+
+// A value based on how many laps and waypoints a racer has reached
+int AIMind::getOverallPosition()
+{
+	return overallPosition;
+}
+
+// Sets the number representation of what place a racer is in (like 1st place, 2nd place, etc)
+void AIMind::setPlacement(int place)
+{
+	placement = place;
+}
+
+hkVector4 AIMind::getRacerPosition()
+{
+	return racer->body->getPosition(); 
+}
+
+// Returns the number representation of what place a racer is in (like 1st place, 2nd place, etc)
+int AIMind::getPlacement()
+{
+	return placement;
 }
 
 int AIMind::getLaserLevel()

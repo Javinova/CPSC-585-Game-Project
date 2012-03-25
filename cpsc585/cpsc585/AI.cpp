@@ -99,8 +99,6 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	physics = new Physics();
 	physics->initialize(5);
 	
-	hud = renderer->getHUD();
-	
 	//Initialize Abilities
 	speedBoost = new Ability(SPEED); // Speed boost with cooldown of 15 seconds and aditional speed of 1
 	
@@ -118,6 +116,11 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 
 	//Initialize AI-Racers
 	initializeAIRacers();
+
+	//Initialize Racer Placement
+	for(int i = 0; i < 5; i++){
+		racerPlacement[i] = racerMinds[i];
+	}
 
 	//Initialize Waypoints
 	initializeWaypoints();
@@ -545,6 +548,12 @@ void AI::simulate(float seconds)
 		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, racers);
 	}
 	
+	updateRacerPlacement(0, 4);
+
+	for(int i = 0; i < 5; i++){
+		racerPlacement[i]->setPlacement(5-i);
+	}
+
 	if(input->placingWaypoint()){
 		wpEditor->update(racers[racerIndex]);
 		input->setPlaceWaypointFalse();
@@ -596,6 +605,66 @@ void AI::simulate(float seconds)
 	}
 
 	return;
+}
+
+/*
+	Runs a quicksort algorithm O(nlogn) to determine the position of a racer
+	in the race based on numbers calculated from the most recent waypoint a
+	racer has reached and what lap they are on. "OverallPosition = #waypoints x #laps"
+	Source: http://www.algolist.net/Algorithms/Sorting/Quicksort
+ */
+void AI::updateRacerPlacement(int left, int right)
+{
+	int i = left, j = right;
+    AIMind* tmp;
+
+	int pivot = racerPlacement[(left + right) / 2]->getOverallPosition();
+
+ 
+
+      /* partition */
+
+      while (i <= j) {
+
+		  while (racerPlacement[i]->getOverallPosition() < pivot)
+                  i++;
+		  while (racerPlacement[j]->getOverallPosition() > pivot)
+                  j--;
+
+            if (i <= j) {
+				if(racerPlacement[i]->getCurrentWaypoint() == racerPlacement[j]->getCurrentWaypoint()){
+					
+					hkSimdReal distanceOfI = waypoints[racerPlacement[i]->getCurrentWaypoint()]->wpPosition.distanceTo(racerPlacement[i]->getRacerPosition());
+					hkSimdReal distanceOfJ = waypoints[racerPlacement[j]->getCurrentWaypoint()]->wpPosition.distanceTo(racerPlacement[j]->getRacerPosition());
+
+					if(distanceOfI < distanceOfJ){
+						tmp = racerPlacement[i];
+					    racerPlacement[i] = racerPlacement[j];
+					    racerPlacement[j] = tmp;
+					}
+				}
+				else{
+					tmp = racerPlacement[i];
+					    racerPlacement[i] = racerPlacement[j];
+					    racerPlacement[j] = tmp;
+				}
+                  
+                  i++;
+                  j--;
+            }
+
+      }
+
+ 
+
+      /* recursion */
+
+      if (left < j)
+            updateRacerPlacement(left, j);
+
+      if (i < right)
+            updateRacerPlacement(i, right);
+
 }
 
 
@@ -669,6 +738,10 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getLaserLevel(), buf17, 10);
 		char buf18[33];
 		_itoa_s(racerMinds[racerIndex]->getLaserDamage(), buf18, 10);
+		char buf19[33];
+		_itoa_s(racerMinds[racerIndex]->getPlacement(), buf19, 10);
+		char buf20[33];
+		_itoa_s(racerMinds[racerIndex]->getOverallPosition(), buf20, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -696,7 +769,9 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Speed Boost Cooldown: ").append(buf13),
 			std::string("Health: ").append(buf16),
 			std::string("Laser Level: ").append(buf17),
-			std::string("Laser Damage: ").append(buf18)};
+			std::string("Laser Damage: ").append(buf18),
+			std::string("Placement: ").append(buf19),
+			std::string("Overall position value: ").append(buf20)};
 	
 		renderer->setText(stringArray, sizeof(stringArray) / sizeof(std::string));
 }

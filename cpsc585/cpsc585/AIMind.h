@@ -18,12 +18,16 @@ public:
 	~AIMind(void);
 	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Racer* racers[]);
 	void togglePlayerComputerAI();
+	void setPlacement(int place);
+	int getPlacement();
 	int getCheckpointTime();
 	int getCurrentLap();
 	int getCurrentWaypoint();
 	int getSpeedCooldown();
 	int getLaserLevel();
 	int getLaserDamage();
+	int getOverallPosition();
+	hkVector4 getRacerPosition();
 
 private:
 	void updateWaypointsAndLap(float seconds, Waypoint* waypoints[]);
@@ -46,8 +50,9 @@ private:
 
 	int currentWaypoint;
 	int checkPointTime;
+	int overallPosition;
 	int currentLap;
-
+	int placement;
 	int knownNumberOfKills;
 };
 

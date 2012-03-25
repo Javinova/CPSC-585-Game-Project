@@ -26,6 +26,7 @@ public:
 	void initialize(Renderer* renderer, Input* input, Sound* sound);
 	void simulate(float milliseconds);
 	void displayDebugInfo(Intention intention, float milliseconds);
+	void updateRacerPlacement(int left, int right);
 
 private:
 	std::string getFPSString(float milliseconds);
@@ -44,6 +45,7 @@ private:
 
 	int count;
 	int fps;
+	int currentWaypoint;
 
 	int racerIndex;
 
@@ -65,6 +67,8 @@ private:
 	AIMind* aiMind2;
 	AIMind* aiMind3;
 	AIMind* aiMind4;
+
+	AIMind* racerPlacement[5];
 
 	// World
 	World* world;
