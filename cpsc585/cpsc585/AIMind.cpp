@@ -12,17 +12,24 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	currentLap = 1;
 	checkPointTimer = new CheckpointTimer(racer);
 	speedBoost = new Ability(SPEED);
+	laser = new Ability(LASER);
+	knownNumberOfKills = 0;
 }
 
 AIMind::~AIMind(void)
 {
 }
 
-void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[]){
+void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Racer* racers[]){
 
 	checkPointTime = checkPointTimer->update(checkpoints);
 
 	updateWaypointsAndLap(seconds, waypoints);
+
+	if(racer->kills > knownNumberOfKills){
+		knownNumberOfKills += 1;
+		upgrade();
+	}
 
 	switch(racerType){
 		case PLAYER:
@@ -169,101 +176,144 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
 
 				/************* STEERING CALCULATIONS *************/
-				racer->lookDir = hkVector4(waypoints[currentWaypoint]->wpPosition);
-				racer->lookDir.sub3clobberW(racer->body->getPosition());
-				racer->lookDir.normalize3();
 
-				hkVector4 A = racer->drawable->getZhkVector();
-				hkVector4 C = racer->body->getPosition();
-				hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+				bool targetAssigned = false;
+				Racer* target;
+				for(int i = 0; i < 5; i++){ // Determines if any racers are within an acceptable range to go into attack mode
+					if(racers[i]->getIndex() != racer->getIndex()){ // If it is a racer other than itself
+						hkVector4 position = racers[i]->body->getPosition();
+						float angle = calculateAngleToPosition(&position);
+						hkVector4 A = racer->drawable->getZhkVector();
+						hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
 
-				float angle = acos(B.dot3(A));
-
-				// Sign determines if it is pointing to the right or the left of the current waypoint
-				float sign = B.dot3(racer->drawable->getXhkVector());
-
-				// The computer only turns if it is pointing away from the current waypoint by more than 20
-				// degrees in either direction.
-				if ((angle > 0.0f) && (sign > 0))
-				{
-					racer->steer(seconds, min(angle / 1.11f, 1.0f));
+						B.dot3(A);
+						// Sign determines if it is pointing to the right or the left of the current waypoint
+						float sign = B.dot3(racer->drawable->getXhkVector());
+						hkSimdReal distance = (racers[i]->body->getPosition()).distanceTo(racer->body->getPosition());
+						hkVector4 vel = racers[i]->body->getLinearVelocity();
+						float velocity = vel.dot3(racers[i]->drawable->getZhkVector());
+						if(distance.isLess(40) && angle < 0.34906 && velocity > 30){ // add a speed condition here (speed > 40)
+							targetAssigned = true; // If there is a target, attack mode (targetAssigned) is enabled, and the target determined
+							target = racers[i];
+							break;
+						}
+					}
 				}
-				else if ((angle > 0.0f) && (sign < 0))
-				{
-					racer->steer(seconds, -min(angle / 1.11f, 1.0f));
+				if(targetAssigned){ // Once targeted, trys to aim at the racer, and when aiming close enough, shoots the laser
+					hkVector4 position = target->body->getPosition();
+					float angle = calculateAngleToPosition(&position);
+					hkVector4 A = racer->drawable->getZhkVector();
+					hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+
+					B.dot3(A);
+					// Sign determines if it is pointing to the right or the left of the current waypoint
+					float sign = B.dot3(racer->drawable->getXhkVector());
+					hkSimdReal distance = (target->body->getPosition()).distanceTo(racer->body->getPosition());
+					if(distance.isLess(40) && angle > 0.24906 && angle < 0.34906){
+						if(sign > 0){
+							racer->steer(seconds, min(angle / 1.11f, 1.0f));
+						}
+						if(sign < 0){
+							racer->steer(seconds, -min(angle / 1.11f, 1.0f));
+						}
+					}
+					if(distance.isLess(40) && angle < 0.24906){
+						racer->fireLaser();
+						targetAssigned = false;
+					}
 				}
-				else
-				{
-					racer->steer(seconds, 0.0f);
+				else{
+					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
+					int indexer;
+					if(currentWaypoint == 79){
+						indexer = 0;
+					}
+					else{
+						indexer = currentWaypoint+1;
+					}
+					*/
+					hkVector4 position = waypoints[currentWaypoint]->wpPosition;
+
+					float angle = calculateAngleToPosition(&position);
+
+					hkVector4 A = racer->drawable->getZhkVector();
+					hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+
+					B.dot3(A);
+					// Sign determines if it is pointing to the right or the left of the current waypoint
+					float sign = B.dot3(racer->drawable->getXhkVector());
+
+			
+
+					// The computer only turns if it is pointing away from the current waypoint by more than 20
+					// degrees in either direction.
+					if ((angle > 0.0f) && (sign > 0))
+					{
+						racer->steer(seconds, min(angle / 1.11f, 1.0f));
+					}
+					else if ((angle > 0.0f) && (sign < 0))
+					{
+						racer->steer(seconds, -min(angle / 1.11f, 1.0f));
+					}
+					else
+					{
+						racer->steer(seconds, 0.0f);
+					}
 				}
+
 				
-
-
-
-
-
-				
-				/* *********OLD CALCULATIONS ***********
-				hkVector4 A = racer->drawable->getZhkVector();
-				hkVector4 C = racer->body->getPosition();
-				hkVector4 B = hkVector4(waypoints[currentWaypoint]->wpPosition);
-				B.sub4(C);
-				float Ax = A.getComponent(0); float Ay = A.getComponent(1); float Az = A.getComponent(2);
-				float Bx = B.getComponent(0); float By = B.getComponent(1); float Bz = B.getComponent(2);
-				float AB = Ax*Bx+Ay*By+Az*Bz;
-				float Ad = sqrt(Ax*Ax + Ay*Ay + Az*Az);
-				float Bd = sqrt(Bx*Bx + By*By + Bz*Bz);
-				float angle = acos(AB/(Ad*Bd));
-
-				// Sign determines if it is pointing to the right or the left of the current waypoint
-				float sign = B.dot3(racer->drawable->getXhkVector());
-
-				// The computer only turns if it is pointing away from the current waypoint by more than 20
-				// degrees in either direction.
-				if(angle > 0.34906 && sign > 0){
-					racer->steer(seconds, 1.0f);
-				}
-				else if(angle > 0.34906 && sign < 0){
-					racer->steer(seconds, -1.0f);
-				}
-				else
-				{
-					racer->steer(seconds, 0.0f);
-				}
-				**********************************/
-
 				/****************************************************/
 
 				racer->applyForces(seconds);
 
-				/*
-					If the computer is stuck, whether flipped, on its side,
-					driving into a wall, or unable to move, if its position does
-					not change for a particular amount of time, it will reset its location
-					to its current waypoints location.
-				*/
-				hkVector4 currentPosition = racer->body->getPosition();
-				int distanceTo = (int)currentPosition.distanceTo(lastPosition);
-				newTime = time(NULL);
-				int timeDiff = (int)difftime(newTime, oldTime);
-				if(timeDiff > 1){
-					if(distanceTo < 1){
-						//hkVector4 racerBody = racer->body->getPosition();
-						D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
-						racer->reset(new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
-					}
-					else{
-						lastPosition = currentPosition;
-					}
-					oldTime = newTime;
-				}
+
 				
 				break;
 			}
-			
+
+	}
+	/*
+		If the computer is stuck, whether flipped, on its side,
+		driving into a wall, or unable to move, if its position does
+		not change for a particular amount of time, it will reset its location
+		to its current waypoints location.
+	*/
+	hkVector4 currentPosition = racer->body->getPosition();
+	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
+	newTime = time(NULL);
+	int timeDiff = (int)difftime(newTime, oldTime);
+	if(timeDiff > 2){
+		if(distanceTo < 1){
+			//hkVector4 racerBody = racer->body->getPosition();
+			D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
+			D3DXVECTOR3 nextPosition = waypoints[currentWaypoint+1]->drawable->getPosition();
+			hkVector4* resetPosition = new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z);
+			racer->reset(resetPosition, 0);
+			float rotation = calculateAngleToPosition(new hkVector4(nextPosition.x, nextPosition.y, nextPosition.z));
+			racer->reset(resetPosition, rotation); // Reset currently does not always point the car in the right direction
+		}
+		else{
+			lastPosition = currentPosition;
+		}
+		oldTime = newTime;
 	}
 
 	
+}
+
+float AIMind::calculateAngleToPosition(hkVector4* position)
+{
+	racer->lookDir = *position;
+	racer->lookDir.sub3clobberW(racer->body->getPosition());
+	racer->lookDir.normalize3();
+
+	hkVector4 A = racer->drawable->getZhkVector();
+	hkVector4 C = racer->body->getPosition();
+	hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+
+	float angle = acos(B.dot3(A));
+
+	return angle;
 }
 
 // Returns the current time left on the checkpoint timer
@@ -300,6 +350,19 @@ void AIMind::togglePlayerComputerAI()
 	}
 }
 
+/*
+	When a racer gets a kill, this function will determine 
+	an ability to upgrade and change its associated paramaters.
+*/
+void AIMind::upgrade()
+{
+	int laserLevel = laser->getAbilityLevel();
+	if(laserLevel < 3){
+		laser->update(laserLevel + 1);
+		racer->setDamageOutput(laser->getLaserDamage());
+	}
+}
+
 // Returns the current lap that the racer is on
 int AIMind::getCurrentLap()
 {
@@ -316,4 +379,14 @@ int AIMind::getCurrentWaypoint()
 int AIMind::getSpeedCooldown()
 {
 	return speedBoost->getCooldownTime();
+}
+
+int AIMind::getLaserLevel()
+{
+	return laser->getAbilityLevel();
+}
+
+int AIMind::getLaserDamage()
+{
+	return laser->getLaserDamage();
 }

@@ -6,6 +6,8 @@ Ability::Ability(AbilityType _abilityType)
 	abilityType = _abilityType;
 	cooldownTime = 0;
 
+	abilityLevel = 1;
+
 	switch(abilityType){
 	case SPEED:
 		lengthOfCooldown = 15; // Time until boost can be used again
@@ -13,6 +15,7 @@ Ability::Ability(AbilityType _abilityType)
 		boostDuration = 3; // Time in seconds that the boost last
 		break;
 	case LASER:
+		laserDamage = 34;
 		break;
 	case LEFT:
 		break;
@@ -75,4 +78,69 @@ float Ability::getBoostValue()
 	else{
 		return 0.0f;
 	}
+}
+
+// When an ability changes in level, its paramaters can change.
+// For example, a weapons damage at level 1 may be 34, but can
+// upgrade to 67 damage at level 2 and 100 damage at level 3.
+void Ability::update(int levelOfAbility)
+{
+	switch(abilityType){
+	case SPEED:
+		if(levelOfAbility == 1){
+
+		}
+		else if(levelOfAbility == 2){
+
+		}
+		else if(levelOfAbility == 3){
+
+		}
+		break;
+	case LASER:
+		if(levelOfAbility == 1){
+			laserDamage = 34;
+		}
+		else if(levelOfAbility == 2){
+			laserDamage = 67;
+		}
+		else if(levelOfAbility == 3){
+			laserDamage = 100;
+		}
+		break;
+	case LEFT:
+		if(levelOfAbility == 1){
+
+		}
+		else if(levelOfAbility == 2){
+
+		}
+		else if(levelOfAbility == 3){
+
+		}
+		break;
+	case RIGHT:
+		if(levelOfAbility == 1){
+
+		}
+		else if(levelOfAbility == 2){
+
+		}
+		else if(levelOfAbility == 3){
+
+		}
+		break;
+	}
+
+	abilityLevel = levelOfAbility;
+}
+
+int Ability::getAbilityLevel()
+{
+	return abilityLevel;
+}
+
+int Ability::getLaserDamage()
+{
+	return laserDamage;
 }

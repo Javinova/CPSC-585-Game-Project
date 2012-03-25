@@ -98,7 +98,6 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	//Initialize physics
 	physics = new Physics();
 	physics->initialize(5);
-
 	
 	hud = renderer->getHUD();
 	
@@ -543,12 +542,9 @@ void AI::simulate(float seconds)
 	
 
 	for(int i = 0; i < 5; i++){
-		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints);
+		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, racers);
 	}
 	
-	hkVector4 look = racers[0]->lookDir;
-	(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
-
 	if(input->placingWaypoint()){
 		wpEditor->update(racers[racerIndex]);
 		input->setPlaceWaypointFalse();
@@ -582,11 +578,15 @@ void AI::simulate(float seconds)
 		renderer->setFocus(racers[racerIndex]->getIndex());
 	}
 
+	hkVector4 look = racers[racerIndex]->lookDir;
+	(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
+
 	// Reset the player (in case you fall over)
 	if (intention.yPressed)
 	{
 		D3DXVECTOR3 cwPosition = waypoints[racerMinds[racerIndex]->getCurrentWaypoint()]->drawable->getPosition();
-		racers[racerIndex]->reset(new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
+		float rotation = 0;
+		racers[racerIndex]->reset(new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z), rotation);
 	}
 
 	physics->step(seconds);
@@ -665,6 +665,10 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getCurrentLap(), buf15, 10);
 		char buf16[33];
 		_itoa_s(racers[racerIndex]->health, buf16, 10);
+		char buf17[33];
+		_itoa_s(racerMinds[racerIndex]->getLaserLevel(), buf17, 10);
+		char buf18[33];
+		_itoa_s(racerMinds[racerIndex]->getLaserDamage(), buf18, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -690,7 +694,9 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Current Waypoint: ").append(buf11),
 			std::string("Checkpoint Time: ").append(buf12),
 			std::string("Speed Boost Cooldown: ").append(buf13),
-			std::string("Health: ").append(buf16)};
+			std::string("Health: ").append(buf16),
+			std::string("Laser Level: ").append(buf17),
+			std::string("Laser Damage: ").append(buf18)};
 	
 		renderer->setText(stringArray, sizeof(stringArray) / sizeof(std::string));
 }

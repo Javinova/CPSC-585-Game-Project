@@ -42,6 +42,7 @@ Racer::Racer(IDirect3DDevice9* device, Renderer* r, Physics* p, Sound* s, RacerT
 	kills = 0;
 	laserTime = 5.0f;
 	laserReady = true;
+	damageOutput = 34;
 
 	index = -1;
 
@@ -145,7 +146,7 @@ Racer::Racer(IDirect3DDevice9* device, Renderer* r, Physics* p, Sound* s, RacerT
 	val.setPtr(NULL);
 	body->addProperty(0, val);
 
-	reset(&(hkVector4(0, 0, 0, 0)));
+	reset(&(hkVector4(0, 0, 0, 0)), 0);
 }
 
 
@@ -188,7 +189,7 @@ void Racer::update()
 
 		if (val.getPtr() != NULL)
 		{
-			giveDamage((Racer*) val.getPtr(), 50);
+			giveDamage((Racer*) val.getPtr(), ((Racer*)val.getPtr())->getDamageOutput());
 			val.setPtr(NULL);
 			body->setProperty(0, val);
 		}
@@ -608,10 +609,10 @@ void Racer::steer(float seconds, float value)
 }
 
 
-void Racer::reset(hkVector4* resetPos)
+void Racer::reset(hkVector4* resetPos, float rotation)
 {
 	hkVector4 reset = hkVector4(0.0f, 0.0f, 0.0f);
-	setPosAndRot((float)resetPos->getComponent(0), (float)resetPos->getComponent(1), (float)resetPos->getComponent(2), 0, 0, 0);
+	setPosAndRot((float)resetPos->getComponent(0), (float)resetPos->getComponent(1), (float)resetPos->getComponent(2), 0, rotation, 0);
 	body->setLinearVelocity(reset);
 	wheelFL->body->setLinearVelocity(reset);
 	wheelFR->body->setLinearVelocity(reset);
@@ -1079,7 +1080,7 @@ void Racer::respawn()
 	hkVector4 deathPos = body->getPosition();
 	hkQuaternion deathRot = body->getRotation();
 
-	reset(&(hkVector4(0, 0, 0, 0)));
+	reset(&(hkVector4(0, 0, 0, 0)), 0);
 
 	deathPos(1) += 5.0f;
 	body->setPositionAndRotation(deathPos, deathRot);
@@ -1096,4 +1097,14 @@ void Racer::giveDamage(Racer* attacker, int damage)
 		respawn();
 		attacker->kills += 1;
 	}
+}
+
+void Racer::setDamageOutput(int damage)
+{
+	damageOutput = damage;
+}
+
+int Racer::getDamageOutput()
+{
+	return damageOutput;
 }
