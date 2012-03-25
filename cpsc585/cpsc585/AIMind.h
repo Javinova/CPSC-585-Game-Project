@@ -54,5 +54,6 @@ private:
 	int currentLap;
 	int placement;
 	int knownNumberOfKills;
+	int numberOfLapsToWin;
 };
 

@@ -3,6 +3,7 @@
 
 AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 {
+	numberOfLapsToWin = 3;
 	racer = _racer;
 	racerType = _racerType;
 	newTime = NULL;
@@ -23,6 +24,13 @@ AIMind::~AIMind(void)
 }
 
 void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Racer* racers[]){
+	// Once the race is completed, the player is turned into an AI at which point an end of game hud would display.
+	if(currentLap == numberOfLapsToWin+1){ 
+		//Possibly add a value here that means the racer has completed the race. Like raceCompleted = true;
+		if(racerType == PLAYER){
+			togglePlayerComputerAI();
+		}
+	}
 
 	checkPointTime = checkPointTimer->update(checkpoints);
 
@@ -180,6 +188,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				/************* STEERING CALCULATIONS *************/
 
 				bool targetAssigned = false;
+				bool avoidanceEngaged = false;
 				Racer* target;
 				for(int i = 0; i < 5; i++){ // Determines if any racers are within an acceptable range to go into attack mode
 					if(racers[i]->getIndex() != racer->getIndex()){ // If it is a racer other than itself
@@ -198,6 +207,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 							targetAssigned = true; // If there is a target, attack mode (targetAssigned) is enabled, and the target determined
 							target = racers[i];
 							break;
+						}
+						else if(distance.isLess(40) && angle < 0.34906 && velocity <= 30){
+							avoidanceEngaged = true;
 						}
 					}
 				}
@@ -223,6 +235,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						racer->fireLaser();
 						targetAssigned = false;
 					}
+				}
+				else if(avoidanceEngaged){
+					racer->steer(seconds, 1.0f);
 				}
 				else{
 					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
