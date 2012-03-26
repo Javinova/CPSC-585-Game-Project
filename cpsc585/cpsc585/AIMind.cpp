@@ -16,12 +16,32 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	checkPointTimer = new CheckpointTimer(racer);
 	speedBoost = new Ability(SPEED);
 	laser = new Ability(LASER);
+<<<<<<< HEAD
 	knownNumberOfKills = 0;
 	rotationAngle = 0;
+=======
+>>>>>>> upstream/master
 }
 
 AIMind::~AIMind(void)
 {
+	if (checkPointTimer)
+	{
+		delete checkPointTimer;
+		checkPointTimer = NULL;
+	}
+
+	if (speedBoost)
+	{
+		delete speedBoost;
+		speedBoost = NULL;
+	}
+
+	if (laser)
+	{
+		delete laser;
+		laser = NULL;
+	}
 }
 
 void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[]){
@@ -58,7 +78,11 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						float height;
 
 						angle = intention.cameraX * 0.05f;
-						height = intention.cameraY * 0.05f + racer->lookHeight;
+
+						if (racer->config.inverse)
+							height = intention.cameraY * -0.02f + racer->lookHeight;
+						else
+							height = intention.cameraY * 0.02f + racer->lookHeight;
 
 						if (height > 0.5f)
 							height = 0.5f;
@@ -100,13 +124,25 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				// Update Heads Up Display
 				hud->update(intention);
-	
+
+				hkVector4 vel = racer->body->getLinearVelocity();
+				float velocity = vel.dot3(racer->drawable->getZhkVector());
+
+				hud->setSpeed(velocity);
+				hud->setHealth(racer->health);
+				hud->setCheckpointTime(checkPointTime);
+				hud->setLap(currentLap);
+
+				racer->computeRPM();
+
 
 				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown()){
 					speedBoost->startCooldownTimer();
+					racer->sound->playBoost();
 				}
 
-				if(hud->getSelectedAbility() == LASER && intention.rightTrig){
+				if(hud->getSelectedAbility() == LASER && intention.rightTrig && !laser->onCooldown()){
+					laser->startCooldownTimer();
 					racer->fireLaser();
 				}
 
@@ -115,6 +151,10 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					speedBoost->updateCooldown();
 					std::string stringArray[] = { buf1 };//, buf2, buf3, buf4 };
 					//renderer->setText(stringArray, 1);
+				}
+
+				if(laser->onCooldown()){
+					laser->updateCooldown();
 				}
 
 				/************* STEERING CALCULATIONS *************/
@@ -244,6 +284,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				else if(avoidanceEngaged){
 					racer->steer(seconds, 1.0f);
 				}
+<<<<<<< HEAD
 				else{
 					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
 					---- For the current map, this is a bad design.
@@ -283,6 +324,11 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						racer->steer(seconds, 0.0f);
 					}
 				}
+=======
+				
+
+				racer->lookDir(1) = 0.0f;
+>>>>>>> upstream/master
 
 				
 				/****************************************************/

@@ -543,11 +543,16 @@ void AI::simulate(float seconds)
 		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, prevCheckpoints, racers);
 	}
 	
+<<<<<<< HEAD
 	updateRacerPlacement(0, 4);
 
 	for(int i = 0; i < 5; i++){
 		racerPlacement[i]->setPlacement(5-i);
 	}
+=======
+	hkVector4 look = racers[racerIndex]->lookDir;
+	(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
+>>>>>>> upstream/master
 
 	if(input->placingWaypoint()){
 		wpEditor->update(racers[racerIndex]);

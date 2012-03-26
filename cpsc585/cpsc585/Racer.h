@@ -33,16 +33,19 @@ public:
 
 	void fireLaser();
 	void giveDamage(Racer* attacker, int damage);
+<<<<<<< HEAD
 	void setDamageOutput(int damage);
 	int getDamageOutput();
+=======
+	void computeRPM();
+>>>>>>> upstream/master
 
 private:
 	void buildConstraint(hkVector4* attachmentPt, hkpGenericConstraintData* constraint, WheelType type);
 	hkVector4 getForce(hkVector4* up, hkpRigidBody* wheel, hkVector4* attach, WheelType type);
 	void applySprings(float seconds);
 	void applyFriction(float seconds);
-	void applyFrictionToTire(hkVector4* attachPoint, hkpRigidBody* wheelBody,
-		float xFrictionForce, float zFrictionForce, float seconds, WheelType type);
+	void applyDrag(float seconds);
 	void applyTireRaycast();
 	void respawn();
 
@@ -50,7 +53,6 @@ public:
 	Drawable* drawable;
 	hkpRigidBody* body;
 	static float accelerationScale;
-	bool laserReady;
 
 	int health;
 	int kills;
@@ -60,6 +62,9 @@ public:
 	float lookHeight;
 
 	float currentAcceleration;
+		
+	static ConfigReader config;
+	static Sound* sound;
 
 private:
 	Drawable* laserDraw;
@@ -76,7 +81,6 @@ private:
 	int damageOutput;
 
 	static hkpWorld* physicsWorld;
-	static Sound* sound;
 
 	// Static elements that are common between all Racers
 	static int xID;
@@ -102,6 +106,7 @@ private:
 	static float frontExtents;
 	static float springForceCap;
 	static float grip;
-	
-	static ConfigReader config;
+	static float dragCoeff;
+	static float topSpeed;
+	static bool inverse; // Inverted look
 };
