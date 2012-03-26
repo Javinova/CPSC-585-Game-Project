@@ -273,9 +273,13 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 							racer->steer(seconds, -min(angle / 1.11f, 1.0f));
 						}
 					}
-					if(distance.isLess(40) && angle < 0.24906){
+					if(distance.isLess(40) && angle < 0.24906 && !laser->onCooldown()){
+						laser->startCooldownTimer();
 						racer->fireLaser();
 						targetAssigned = false;
+					}
+					if(laser->onCooldown()){
+						laser->updateCooldown();
 					}
 				}
 				else if(avoidanceEngaged){
