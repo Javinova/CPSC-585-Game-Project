@@ -23,7 +23,7 @@ AIMind::~AIMind(void)
 {
 }
 
-void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Racer* racers[]){
+void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[]){
 	// Once the race is completed, the player is turned into an AI at which point an end of game hud would display.
 	if(currentLap == numberOfLapsToWin+1){ 
 		//Possibly add a value here that means the racer has completed the race. Like raceCompleted = true;
@@ -32,9 +32,13 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		}
 	}
 
-	checkPointTime = checkPointTimer->update(checkpoints);
+	checkPointTime = checkPointTimer->update(checkpoints, prevCheckpoints);
 
 	updateWaypointsAndLap(seconds, waypoints);
+
+	if(checkPointTime == 0){
+		downgrade();
+	}
 
 	if(racer->kills > knownNumberOfKills){
 		knownNumberOfKills += 1;
@@ -241,6 +245,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 				else{
 					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
+					---- For the current map, this is a bad design.
 					int indexer;
 					if(currentWaypoint == 79){
 						indexer = 0;
@@ -428,6 +433,45 @@ void AIMind::upgrade()
 	}
 }
 
+void AIMind::downgrade()
+{
+	int laserLevel = laser->getAbilityLevel();
+	int speedLevel = speedBoost->getAbilityLevel();
+	bool downgradeLaser = false;
+	bool downgradeSpeed = false;
+
+	if(laserLevel == speedLevel){
+		srand((unsigned)time(0));
+		int random_integer = rand()%100;
+		if(random_integer > 50){
+			downgradeLaser = true;
+		}
+		else if(random_integer > 0){
+			downgradeSpeed = true;
+		}
+	}
+	else{
+		if(laserLevel > speedLevel){
+			downgradeLaser = true;
+		}
+		else if(speedLevel > laserLevel){
+			downgradeSpeed = true;
+		}
+	}
+
+	if(downgradeLaser){
+		if(laserLevel > 1){
+			laser->update(laserLevel - 1);
+			racer->setDamageOutput(laser->getLaserDamage());
+		}
+	}
+	else if(downgradeSpeed){
+		if(speedLevel > 1){
+			speedBoost->update(speedLevel - 1);
+		}
+	}
+}
+
 // Returns the current lap that the racer is on
 int AIMind::getCurrentLap()
 {
@@ -482,4 +526,9 @@ int AIMind::getLaserDamage()
 int AIMind::getSpeedLevel()
 {
 	return speedBoost->getAbilityLevel();
+}
+
+int AIMind::getCurrentCheckpoint()
+{
+	return checkPointTimer->getCurrentCheckpoint();
 }

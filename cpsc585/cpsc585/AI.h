@@ -157,12 +157,6 @@ private:
 	Waypoint* wp80;
 
 	// Checkpoints
-	Waypoint* checkpoints[7];
-	Waypoint* cp1;
-	Waypoint* cp2;
-	Waypoint* cp3;
-	Waypoint* cp4;
-	Waypoint* cp5;
-	Waypoint* cp6;
-	Waypoint* cp7;
+	Waypoint* checkpoints[4];
+	Waypoint* prevCheckpoints[4];
 };

@@ -11,9 +11,9 @@ class CheckpointTimer
 public:
 	CheckpointTimer(Racer* racer);
 	~CheckpointTimer(void);
-	int update(Waypoint* checkpoints[]);
+	int update(Waypoint* checkpoints[], Waypoint* prevCheckpoints[]);
 	int getCheckpointTime();
-
+	int getCurrentCheckpoint();
 
 private:
 	time_t oldTime;

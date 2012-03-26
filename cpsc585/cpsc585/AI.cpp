@@ -490,34 +490,29 @@ void AI::initializeWaypoints()
 
 void AI::initializeCheckpoints()
 {
-	cp1 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp1->setPosAndRot(-83.0f, 5.0f, -49.0f, 0.0f, 0.0f, 0.0f);
-	
-	cp2 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp2->setPosAndRot(-189.0f, 5.0f, 87.0f, 0.0f, 0.0f, 0.0f);
+	prevCheckpoints[0] = new Waypoint(renderer->getDevice(), TURN_POINT);
+	prevCheckpoints[0]->setPosAndRot(-264.0f, -14.0f, 90.0f, 0.0f, 0.0f, 0.0f);
 
-	cp3 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp3->setPosAndRot(-160.0f, 5.0f, 189.0f, 0.0f, 0.0f, 0.0f);
+	checkpoints[0] = new Waypoint(renderer->getDevice(), TURN_POINT);
+	checkpoints[0]->setPosAndRot(-252.0f, -14.0f, 36.0f, 0.0f, 0.0f, 0.0f);
 
-	cp4 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp4->setPosAndRot(-11.0f, 5.0f, 197.0f, 0.0f, 0.0f, 0.0f);
+	prevCheckpoints[1] = new Waypoint(renderer->getDevice(), CHECK_POINT);
+	prevCheckpoints[1]->setPosAndRot(-30.0f, 7.0f, 49.0f, 0.0f, 0.0f, 0.0f);
 
-	cp5 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp5->setPosAndRot(74.0f, 5.0f, 92.0f, 0.0f, 0.0f, 0.0f);
+	checkpoints[1] = new Waypoint(renderer->getDevice(), CHECK_POINT);
+	checkpoints[1]->setPosAndRot(-5.0f, 10.0f, 85.0f, 0.0f, 0.0f, 0.0f);
 
-	cp6 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp6->setPosAndRot(148.0f, 5.0f, -33.0f, 0.0f, 0.0f, 0.0f);
+	prevCheckpoints[2] = new Waypoint(renderer->getDevice(), CHECK_POINT);
+	prevCheckpoints[2]->setPosAndRot(239.0f, -14.0f, -178.0f, 0.0f, 0.0f, 0.0f);
 
-	cp7 = new Waypoint(renderer->getDevice(), CHECK_POINT);
-	cp7->setPosAndRot(91.0f, 5.0f, -173.0f, 0.0f, 0.0f, 0.0f);
+	checkpoints[2] = new Waypoint(renderer->getDevice(), CHECK_POINT);
+	checkpoints[2]->setPosAndRot(190.0f, -14.0f, -181.0f, 0.0f, 0.0f, 0.0f);
 
-	checkpoints[0] = cp1;
-	checkpoints[1] = cp2;
-	checkpoints[2] = cp3;
-	checkpoints[3] = cp4;
-	checkpoints[4] = cp5;
-	checkpoints[5] = cp6;
-	checkpoints[6] = cp7;
+	prevCheckpoints[3] = new Waypoint(renderer->getDevice(), CHECK_POINT);
+	prevCheckpoints[3]->setPosAndRot(-14.0f, -14.0f, -212.0f, 0.0f, 0.0f, 0.0f);
+
+	checkpoints[3] = new Waypoint(renderer->getDevice(), LAP_POINT);
+	checkpoints[3]->setPosAndRot(2.0f, -14.0f, -141.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void AI::simulate(float seconds)
@@ -545,7 +540,7 @@ void AI::simulate(float seconds)
 	
 
 	for(int i = 0; i < 5; i++){
-		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, racers);
+		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, prevCheckpoints, racers);
 	}
 	
 	updateRacerPlacement(0, 4);
@@ -744,6 +739,8 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getOverallPosition(), buf20, 10);
 		char buf21[33];
 		_itoa_s(racerMinds[racerIndex]->getSpeedLevel(), buf21, 10);
+		char buf22[33];
+		_itoa_s(racerMinds[racerIndex]->getCurrentCheckpoint(), buf22, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -767,8 +764,9 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Current Lap: ").append(buf15),
 			std::string("Kills: ").append(buf10),
 			std::string("Current Waypoint: ").append(buf11),
+			std::string("Current Checkpoint: ").append(buf22),
 			std::string("Checkpoint Time: ").append(buf12),
-			std::string("Speed level").append(buf21),
+			std::string("Speed level: ").append(buf21),
 			std::string("Speed Boost Cooldown: ").append(buf13),
 			std::string("Health: ").append(buf16),
 			std::string("Laser Level: ").append(buf17),

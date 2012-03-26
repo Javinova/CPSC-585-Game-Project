@@ -7,20 +7,20 @@ Waypoint::Waypoint(IDirect3DDevice9* device, WPType _wpType)
 	{
 	case WAY_POINT:
 		radius = 20;
-		checkPointTime = 0;
+		checkPointTime = 20;
 		break;
 	case CHECK_POINT:
 		radius = 20;
-		checkPointTime = 3;
+		checkPointTime = 20;
 	case LAP_POINT:
 		radius = 20;
-		checkPointTime = 3;
+		checkPointTime = 20;
 	case TURN_POINT:
 		radius = 20;
-		checkPointTime = 3;
+		checkPointTime = 20;
 	case SHARP_POINT:
 		radius = 20;
-		checkPointTime = 3;
+		checkPointTime = 20;
 	}
 
 	drawable = new Drawable(WAYPOINT, "checker.dds", device);
