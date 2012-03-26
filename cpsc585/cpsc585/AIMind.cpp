@@ -17,6 +17,7 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	speedBoost = new Ability(SPEED);
 	laser = new Ability(LASER);
 	knownNumberOfKills = 0;
+	rotationAngle = 0;
 }
 
 AIMind::~AIMind(void)
@@ -36,7 +37,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 	updateWaypointsAndLap(seconds, waypoints);
 
-	if(checkPointTime == 0){
+	if(checkPointTimer->downgradeAbility()){
 		downgrade();
 	}
 
@@ -306,13 +307,28 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	int timeDiff = (int)difftime(newTime, oldTime);
 	if(timeDiff > 3){
 		if(distanceTo < 1){
-			//hkVector4 racerBody = racer->body->getPosition();
 			D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
 			D3DXVECTOR3 nextPosition = waypoints[currentWaypoint+1]->drawable->getPosition();
+			hkVector4 wayptVec = hkVector4(nextPosition.x, nextPosition.y, nextPosition.z);
+			wayptVec.sub(hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
 			hkVector4* resetPosition = new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z);
 			racer->reset(resetPosition, 0);
-			float rotation = calculateAngleToPosition(new hkVector4(nextPosition.x, nextPosition.y, nextPosition.z));
-			racer->reset(resetPosition, rotation); // Reset currently does not always point the car in the right direction
+			wayptVec(1) = 0.0f;
+			wayptVec.normalize3();
+ 
+			hkVector4 z = racer->drawable->getZhkVector();
+			hkVector4 x = racer->drawable->getXhkVector();
+ 
+			float angle = hkMath::acos(z.dot3(wayptVec)); // angle is between 0 and 180
+			
+			// if the vector is on the LEFT side of the car...
+			if (x.dot3(wayptVec) < 0.0f)
+				angle *= -1.0f;
+ 
+			rotationAngle = angle;
+ 
+			racer->reset(resetPosition, angle);
+			calculateAngleToPosition(new hkVector4(nextPosition.x, nextPosition.y, nextPosition.z));
 		}
 		else{
 			lastPosition = currentPosition;
@@ -531,4 +547,9 @@ int AIMind::getSpeedLevel()
 int AIMind::getCurrentCheckpoint()
 {
 	return checkPointTimer->getCurrentCheckpoint();
+}
+
+float AIMind::getRotationAngle()
+{
+	return rotationAngle;
 }

@@ -29,6 +29,7 @@ public:
 	int getLaserDamage();
 	int getOverallPosition();
 	int getCurrentCheckpoint();
+	float getRotationAngle();
 	hkVector4 getRacerPosition();
 
 private:
@@ -58,5 +59,7 @@ private:
 	int placement;
 	int knownNumberOfKills;
 	int numberOfLapsToWin;
+
+	float rotationAngle;
 };
 

@@ -20,6 +20,7 @@ CheckpointTimer::CheckpointTimer(Racer* _racer)
 
 int CheckpointTimer::update(Waypoint* checkpoints[], Waypoint* prevCheckpoints[])//, D3DXVECTOR3 cameraPosition)
 {
+	downgradeAbilityTruth = false;
 	newTime = time(NULL);
 		
 	checkPointTime = checkPointTime - difftime(newTime, oldTime);
@@ -50,8 +51,9 @@ int CheckpointTimer::update(Waypoint* checkpoints[], Waypoint* prevCheckpoints[]
 	}
 
 	oldTime = newTime;
-	if(checkPointTime < 0){
+	if(checkPointTime < 1){
 		checkPointTime = resetTime;
+		downgradeAbilityTruth = true;
 	}
 
 	return (int)checkPointTime;
@@ -60,4 +62,9 @@ int CheckpointTimer::update(Waypoint* checkpoints[], Waypoint* prevCheckpoints[]
 int CheckpointTimer::getCurrentCheckpoint()
 {
 	return currentCheckpoint;
+}
+
+bool CheckpointTimer::downgradeAbility()
+{
+	return downgradeAbilityTruth;
 }

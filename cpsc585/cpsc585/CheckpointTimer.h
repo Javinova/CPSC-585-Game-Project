@@ -14,6 +14,7 @@ public:
 	int update(Waypoint* checkpoints[], Waypoint* prevCheckpoints[]);
 	int getCheckpointTime();
 	int getCurrentCheckpoint();
+	bool downgradeAbility();
 
 private:
 	time_t oldTime;
@@ -22,6 +23,7 @@ private:
 
 	double checkPointTime;
 	int currentCheckpoint;
+	bool downgradeAbilityTruth;
 
 	Racer* racer;
 };

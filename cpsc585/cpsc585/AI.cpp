@@ -741,6 +741,8 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getSpeedLevel(), buf21, 10);
 		char buf22[33];
 		_itoa_s(racerMinds[racerIndex]->getCurrentCheckpoint(), buf22, 10);
+		char buf23[33];
+		_itoa_s((int)(racerMinds[racerIndex]->getRotationAngle()*1000.0f), buf23, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -772,7 +774,8 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Laser Level: ").append(buf17),
 			std::string("Laser Damage: ").append(buf18),
 			std::string("Placement: ").append(buf19),
-			std::string("Overall position value: ").append(buf20)};
+			std::string("Overall position value: ").append(buf20),
+			std::string("Rotation Angle: ").append(buf23)};
 	
 		renderer->setText(stringArray, sizeof(stringArray) / sizeof(std::string));
 }
