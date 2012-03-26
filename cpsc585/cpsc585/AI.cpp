@@ -742,6 +742,8 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getPlacement(), buf19, 10);
 		char buf20[33];
 		_itoa_s(racerMinds[racerIndex]->getOverallPosition(), buf20, 10);
+		char buf21[33];
+		_itoa_s(racerMinds[racerIndex]->getSpeedLevel(), buf21, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -766,6 +768,7 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Kills: ").append(buf10),
 			std::string("Current Waypoint: ").append(buf11),
 			std::string("Checkpoint Time: ").append(buf12),
+			std::string("Speed level").append(buf21),
 			std::string("Speed Boost Cooldown: ").append(buf13),
 			std::string("Health: ").append(buf16),
 			std::string("Laser Level: ").append(buf17),

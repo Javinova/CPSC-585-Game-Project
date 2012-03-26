@@ -25,6 +25,7 @@ public:
 	int getCurrentWaypoint();
 	int getSpeedCooldown();
 	int getLaserLevel();
+	int getSpeedLevel();
 	int getLaserDamage();
 	int getOverallPosition();
 	hkVector4 getRacerPosition();

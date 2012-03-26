@@ -299,7 +299,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
 	int timeDiff = (int)difftime(newTime, oldTime);
-	if(timeDiff > 2){
+	if(timeDiff > 3){
 		if(distanceTo < 1){
 			//hkVector4 racerBody = racer->body->getPosition();
 			D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
@@ -392,9 +392,39 @@ void AIMind::togglePlayerComputerAI()
 void AIMind::upgrade()
 {
 	int laserLevel = laser->getAbilityLevel();
-	if(laserLevel < 3){
-		laser->update(laserLevel + 1);
-		racer->setDamageOutput(laser->getLaserDamage());
+	int speedLevel = speedBoost->getAbilityLevel();
+	bool upgradeLaser = false;
+	bool upgradeSpeed = false;
+
+	if(laserLevel == speedLevel){
+		srand((unsigned)time(0));
+		int random_integer = rand()%100;
+		if(random_integer > 50){
+			upgradeLaser = true;
+		}
+		else if(random_integer > 0){
+			upgradeSpeed = true;
+		}
+	}
+	else{
+		if(laserLevel < speedLevel){
+			upgradeLaser = true;
+		}
+		else if(speedLevel < laserLevel){
+			upgradeSpeed = true;
+		}
+	}
+
+	if(upgradeLaser){
+		if(laserLevel < 3){
+			laser->update(laserLevel + 1);
+			racer->setDamageOutput(laser->getLaserDamage());
+		}
+	}
+	else if(upgradeSpeed){
+		if(speedLevel < 3){
+			speedBoost->update(speedLevel + 1);
+		}
 	}
 }
 
@@ -447,4 +477,9 @@ int AIMind::getLaserLevel()
 int AIMind::getLaserDamage()
 {
 	return laser->getLaserDamage();
+}
+
+int AIMind::getSpeedLevel()
+{
+	return speedBoost->getAbilityLevel();
 }

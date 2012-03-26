@@ -88,13 +88,16 @@ void Ability::update(int levelOfAbility)
 	switch(abilityType){
 	case SPEED:
 		if(levelOfAbility == 1){
-
+			lengthOfCooldown = 15; // Time until boost can be used again
+			boostValue = 0.5f; // Additional speed that the boost provides
 		}
 		else if(levelOfAbility == 2){
-
+			lengthOfCooldown = 12; // Time until boost can be used again
+			boostValue = 0.75f; // Additional speed that the boost provides
 		}
 		else if(levelOfAbility == 3){
-
+			lengthOfCooldown = 9; // Time until boost can be used again
+			boostValue = 1.0f; // Additional speed that the boost provides
 		}
 		break;
 	case LASER:
