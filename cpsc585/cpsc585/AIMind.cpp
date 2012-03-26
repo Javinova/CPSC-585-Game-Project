@@ -16,11 +16,8 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	checkPointTimer = new CheckpointTimer(racer);
 	speedBoost = new Ability(SPEED);
 	laser = new Ability(LASER);
-<<<<<<< HEAD
 	knownNumberOfKills = 0;
 	rotationAngle = 0;
-=======
->>>>>>> upstream/master
 }
 
 AIMind::~AIMind(void)
@@ -131,7 +128,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				hud->setSpeed(velocity);
 				hud->setHealth(racer->health);
 				hud->setCheckpointTime(checkPointTime);
-				hud->setLap(currentLap);
+				hud->setLap(placement);
 
 				racer->computeRPM();
 
@@ -284,7 +281,6 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				else if(avoidanceEngaged){
 					racer->steer(seconds, 1.0f);
 				}
-<<<<<<< HEAD
 				else{
 					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
 					---- For the current map, this is a bad design.
@@ -324,11 +320,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						racer->steer(seconds, 0.0f);
 					}
 				}
-=======
 				
 
 				racer->lookDir(1) = 0.0f;
->>>>>>> upstream/master
 
 				
 				/****************************************************/

@@ -33,12 +33,10 @@ public:
 
 	void fireLaser();
 	void giveDamage(Racer* attacker, int damage);
-<<<<<<< HEAD
+
 	void setDamageOutput(int damage);
 	int getDamageOutput();
-=======
 	void computeRPM();
->>>>>>> upstream/master
 
 private:
 	void buildConstraint(hkVector4* attachmentPt, hkpGenericConstraintData* constraint, WheelType type);
@@ -57,6 +55,7 @@ public:
 	int health;
 	int kills;
 	float laserTime;
+	bool laserReady;
 
 	hkVector4 lookDir;
 	float lookHeight;

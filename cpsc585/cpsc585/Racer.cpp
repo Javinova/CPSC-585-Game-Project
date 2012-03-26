@@ -45,13 +45,10 @@ Racer::Racer(IDirect3DDevice9* device, Renderer* r, Physics* p, Sound* s, RacerT
 
 	health = 100;
 	kills = 0;
-<<<<<<< HEAD
 	laserTime = 5.0f;
 	laserReady = true;
 	damageOutput = 34;
-=======
 	laserTime = 0.0f;
->>>>>>> upstream/master
 
 	index = -1;
 
@@ -1032,7 +1029,6 @@ void Racer::giveDamage(Racer* attacker, int damage)
 	}
 }
 
-<<<<<<< HEAD
 void Racer::setDamageOutput(int damage)
 {
 	damageOutput = damage;
@@ -1042,7 +1038,6 @@ int Racer::getDamageOutput()
 {
 	return damageOutput;
 }
-=======
 
 void Racer::computeRPM()
 {
@@ -1072,4 +1067,3 @@ void Racer::computeRPM()
 	sound->playEngine(rpm / 3.0f);
 }
 
->>>>>>> upstream/master
