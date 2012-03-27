@@ -154,6 +154,8 @@ Racer::Racer(IDirect3DDevice9* device, Renderer* r, Physics* p, Sound* s, RacerT
 	body->addProperty(0, val);
 
 	reset(&(hkVector4(0, 0, 0, 0)), 0);
+
+	emitter = sound->getEmitter();
 }
 
 
@@ -262,6 +264,28 @@ void Racer::update()
 		wheelFR->drawable->setTransform(&transMat);
 
 		currentAcceleration = 0.0f;
+
+
+
+		// Update 3D sound position
+		hkVector4 vec = hkVector4(lookDir);
+		vec.normalize3();
+		vec(0) = vec(0);
+		emitter->OrientFront.x = vec(0);
+		emitter->OrientFront.y = vec(1);
+		emitter->OrientFront.z = vec(2);
+
+		vec = hkVector4(body->getPosition());
+
+		emitter->Position.x = vec(0);
+		emitter->Position.y = vec(1);
+		emitter->Position.z = vec(2);
+
+		vec = hkVector4(body->getLinearVelocity());
+
+		emitter->Velocity.x = vec(0);
+		emitter->Velocity.y = vec(1);
+		emitter->Velocity.z = vec(2);
 	}
 }
 
@@ -959,7 +983,7 @@ void Racer::fireLaser()
 {
 	laserTime = 3.0f;
 
-	sound->playLaser();
+	sound->playLaser(emitter);
 
 	hkpWorldRayCastInput input;
 	hkpWorldRayCastOutput output;
@@ -968,16 +992,17 @@ void Racer::fireLaser()
 	hkVector4 raycastDir = drawable->getZhkVector();
 	hkTransform transform = body->getTransform();
 
+	hkVector4 attach = hkVector4(attachLaser);
+	attach(1) = -0.6f;
 
 	// Raycast
 	input = hkpWorldRayCastInput();
 	output = hkpWorldRayCastOutput();
 	input.m_filterInfo = body->getCollisionFilterInfo();
 	
-	from.setTransformedPos(transform, attachLaser);
+	from.setTransformedPos(transform, attach);
 	to = hkVector4(raycastDir);
-	raycastDir(1) -= 0.3f;
-	raycastDir.normalize3();
+	
 	to.mul(80.0f);	// Laser length
 	to.add(from);
 
@@ -1019,7 +1044,7 @@ void Racer::respawn()
 void Racer::giveDamage(Racer* attacker, int damage)
 {
 	health -= damage;
-	sound->playCrash();
+	sound->playCrash(emitter);
 
 	if (health <= 0)
 	{
@@ -1061,9 +1086,10 @@ void Racer::computeRPM()
 		gear = 6;
 
 	rpm = gearRatios[gear]*3.14f*wheelRPM;
-	rpm /= 1000.0f;
+	rpm /= 2.0f;
+
 	if (rpm == 0)
 		rpm = 1.0f;
-	sound->playEngine(rpm / 3.0f);
-}
 
+	sound->playEngine(emitter, rpm/ 1024.0f);
+}

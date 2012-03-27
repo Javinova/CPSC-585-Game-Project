@@ -135,7 +135,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown()){
 					speedBoost->startCooldownTimer();
-					racer->sound->playBoost();
+					racer->sound->playBoost(racer->emitter);
 				}
 
 				if(hud->getSelectedAbility() == LASER && intention.rightTrig && !laser->onCooldown()){
@@ -306,6 +306,50 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					B.dot3(A);
 					// Sign determines if it is pointing to the right or the left of the current waypoint
 					float sign = B.dot3(racer->drawable->getXhkVector());
+					hkSimdReal distance = (target->body->getPosition()).distanceTo(racer->body->getPosition());
+					if(distance.isLess(40) && angle > 0.24906 && angle < 0.34906){
+						if(sign > 0){
+							racer->steer(seconds, min(angle / 1.11f, 1.0f));
+						}
+						if(sign < 0){
+							racer->steer(seconds, -min(angle / 1.11f, 1.0f));
+						}
+					}
+					if(distance.isLess(40) && angle < 0.24906 && !laser->onCooldown()){
+						laser->startCooldownTimer();
+						racer->fireLaser();
+						targetAssigned = false;
+					}
+					if(laser->onCooldown()){
+						laser->updateCooldown();
+					}
+				}
+				else if(avoidanceEngaged){
+					racer->steer(seconds, 1.0f);
+				}
+				else{
+					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
+					---- For the current map, this is a bad design.
+					int indexer;
+					if(currentWaypoint == 79){
+						indexer = 0;
+					}
+					else{
+						indexer = currentWaypoint+1;
+					}
+					*/
+					hkVector4 position = waypoints[currentWaypoint]->wpPosition;
+
+					float angle = calculateAngleToPosition(&position);
+
+					hkVector4 A = racer->drawable->getZhkVector();
+					hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+
+					B.dot3(A);
+					// Sign determines if it is pointing to the right or the left of the current waypoint
+					float sign = B.dot3(racer->drawable->getXhkVector());
+
+			
 
 			
 
@@ -548,6 +592,54 @@ int AIMind::getCurrentWaypoint()
 int AIMind::getSpeedCooldown()
 {
 	return speedBoost->getCooldownTime();
+}
+
+// A value based on how many laps and waypoints a racer has reached
+int AIMind::getOverallPosition()
+{
+	return overallPosition;
+}
+
+// Sets the number representation of what place a racer is in (like 1st place, 2nd place, etc)
+void AIMind::setPlacement(int place)
+{
+	placement = place;
+}
+
+hkVector4 AIMind::getRacerPosition()
+{
+	return racer->body->getPosition(); 
+}
+
+// Returns the number representation of what place a racer is in (like 1st place, 2nd place, etc)
+int AIMind::getPlacement()
+{
+	return placement;
+}
+
+int AIMind::getLaserLevel()
+{
+	return laser->getAbilityLevel();
+}
+
+int AIMind::getLaserDamage()
+{
+	return laser->getLaserDamage();
+}
+
+int AIMind::getSpeedLevel()
+{
+	return speedBoost->getAbilityLevel();
+}
+
+int AIMind::getCurrentCheckpoint()
+{
+	return checkPointTimer->getCurrentCheckpoint();
+}
+
+float AIMind::getRotationAngle()
+{
+	return rotationAngle;
 }
 
 // A value based on how many laps and waypoints a racer has reached
