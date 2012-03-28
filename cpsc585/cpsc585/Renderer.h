@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Drawable.h"
 #include "HUD.h"
+#include "Skybox.h"
 
 
 class Renderer
@@ -37,7 +38,6 @@ private:
 
 	D3DXMATRIX projectionMatrix;
 	D3DXMATRIX worldMatrix;
-	D3DXMATRIX orthoMatrix;
 
 	
 	
@@ -52,4 +52,6 @@ private:
 
 	HUD* hud;
 	Camera* camera;
+
+	Skybox* skybox;
 };

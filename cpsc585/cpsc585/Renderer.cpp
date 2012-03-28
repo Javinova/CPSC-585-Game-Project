@@ -123,16 +123,13 @@ bool Renderer::initialize(int width, int height, HWND hwnd, float zNear, float z
 	float fieldOfView, screenAspect;
 
 	// Setup the projection matrix.
-	fieldOfView = (float)D3DX_PI / 4.0f;
+	fieldOfView = (float)D3DX_PI / 3.0f;
 	screenAspect = (float)width / (float)height;
 
 	// Create the projection matrix for 3D rendering.
 	D3DXMatrixPerspectiveFovLH(&projectionMatrix, fieldOfView, screenAspect, zNear, zFar);
 
 	D3DXMatrixIdentity(&worldMatrix);
-
-	// Create an orthographic projection matrix for 2D rendering.
-	D3DXMatrixOrthoLH(&orthoMatrix, (float)width, (float)height, zNear, zFar);
 	
 	camera = new Camera;
 	
@@ -168,6 +165,9 @@ bool Renderer::initialize(int width, int height, HWND hwnd, float zNear, float z
 
 	// Set up HUD
 	hud->initialize(device);
+
+	// Set up Skybox
+	skybox = new Skybox(device);
 
 	return true;
 }
@@ -215,18 +215,43 @@ void Renderer::render()
 {
 	D3DXMATRIX viewMatrix;
 	
-	device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	
+	// Draw skybox
+
+	camera->updateForSkybox();
+
+	// Get view matrix
+	camera->getViewMatrix(viewMatrix);
+
+
+	device->Clear(0, NULL, D3DCLEAR_ZBUFFER, NULL, 1.0, 0);
+	
+
+	device->SetTransform(D3DTS_PROJECTION, &projectionMatrix);
+	device->SetTransform(D3DTS_VIEW, &viewMatrix);
+	device->SetTransform(D3DTS_WORLD, &worldMatrix);
+
+	device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	
+	device->BeginScene();
+	skybox->render(device);
+	device->EndScene();
+	
+	device->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+
+
+	// Now draw rest of the scene
 
 	camera->update();
 
 	// Get view matrix
 	camera->getViewMatrix(viewMatrix);
 
-	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(10, 10, 80), 1.0f, 0);
-	
-	device->SetTransform(D3DTS_PROJECTION, &projectionMatrix);
 	device->SetTransform(D3DTS_VIEW, &viewMatrix);
-	device->SetTransform(D3DTS_WORLD, &worldMatrix);
+
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
 
 	device->BeginScene();
 
@@ -249,6 +274,7 @@ void Renderer::render()
 	hud->render();
 
 
+
 	device->Present(NULL, NULL, NULL, NULL);
 
 	return;
@@ -256,12 +282,10 @@ void Renderer::render()
 
 void Renderer::writeText(std::string text, int line)
 {
-	device->SetTransform(D3DTS_PROJECTION, &orthoMatrix);
-
 	RECT rect;
 	SetRect(&rect, 20, 20 + (line*30), 600, 600);
 	
-	font->DrawText(NULL, text.c_str(), -1, &rect, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(255, 255, 255));
+	font->DrawText(NULL, text.c_str(), -1, &rect, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(200, 50, 50));
 }
 
 void Renderer::setText(std::string* sentenceArray, int count)
