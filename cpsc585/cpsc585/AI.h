@@ -18,6 +18,8 @@
 #include "CheckpointTimer.h"
 
 #define NUMRACERS 5
+#define NUMWAYPOINTS 80
+#define NUMCHECKPOINTS 4
 
 class AI
 {
@@ -76,7 +78,7 @@ private:
 	World* world;
 
 	// Waypoints
-	Waypoint* waypoints[80];
+	Waypoint* waypoints[NUMWAYPOINTS];
 	Waypoint* wp1;
 	Waypoint* wp2;
 	Waypoint* wp3;
@@ -159,6 +161,6 @@ private:
 	Waypoint* wp80;
 
 	// Checkpoints
-	Waypoint* checkpoints[4];
-	Waypoint* prevCheckpoints[4];
+	Waypoint* checkpoints[NUMCHECKPOINTS];
+	Waypoint* prevCheckpoints[NUMCHECKPOINTS];
 };
