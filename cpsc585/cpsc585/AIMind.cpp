@@ -313,7 +313,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						hkSimdReal distance = (racers[i]->body->getPosition()).distanceTo(racer->body->getPosition());
 						hkVector4 vel = racers[i]->body->getLinearVelocity();
 						float velocity = vel.dot3(racers[i]->drawable->getZhkVector());
-						if(distance.isLess(80) && angle < 0.34906 && velocity > 30){ // add a speed condition here (speed > 40)
+						if(distance.isLess(60) && angle < 0.34906 && velocity > 30){ // add a speed condition here (speed > 40)
 							targetAssigned = true; // If there is a target, attack mode (targetAssigned) is enabled, and the target determined
 							target = racers[i];
 							break;
@@ -324,45 +324,26 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					}
 				}
 				if(targetAssigned){ // Once targeted, trys to aim at the racer, and when aiming close enough, shoots the laser
-					/*
 					hkVector4 targetPos = target->body->getPosition();
-					racer->lookDir = targetPos;
-					racer->lookDir.sub3clobberW(racer->body->getPosition());
-					racer->lookDir.normalize3();
-					*/
-					/*
-					hkVector4 targetPos = target->body->getPosition();
-					hkVector4 racerPos = racer->body->getPosition();
-					targetPos.sub(racerPos);
-					racer->lookDir.setXYZ(targetPos);
-					racer->lookDir.normalize3();
-					*/
+					hkVector4 shooterPos = racer->body->getPosition();
+
 
 					
-					hkVector4 position = target->body->getPosition();
-					float angle = calculateAngleToPosition(&position);
-					hkVector4 A = racer->drawable->getZhkVector();
-					hkVector4 B;
-					B.setXYZ(racer->lookDir);
-					B(1) = 0.0f;
 
-					B.dot3(A);
-					// Sign determines if it is pointing to the right or the left of the current waypoint
-					float sign = B.dot3(racer->drawable->getXhkVector());
-					hkSimdReal distance = (target->body->getPosition()).distanceTo(racer->body->getPosition());
-					if(distance.isLess(40) && angle > 0.24906 && angle < 0.34906){
-						if(sign > 0){
-							racer->steer(seconds, min(angle / 1.11f, 1.0f));
-						}
-						if(sign < 0){
-							racer->steer(seconds, -min(angle / 1.11f, 1.0f));
-						}
-					}
-					if(distance.isLess(40) && angle < 0.24906 && !laser->onCooldown()){
+					shooterPos(1) += 2.0f;
+					targetPos.sub(shooterPos);
+					targetPos.normalize3();
+
+					racer->lookDir.setXYZ(targetPos);
+					
+
+					if (!laser->onCooldown())
+					{
 						laser->startCooldownTimer();
 						racer->fireLaser();
 						targetAssigned = false;
 					}
+
 					if(laser->onCooldown()){
 						laser->updateCooldown(seconds);
 					}
@@ -413,11 +394,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						racer->steer(seconds, 0.0f);
 					}
 				}
-				
 
-				racer->lookDir(1) = 0.0f;
 				
-
 				
 				/****************************************************/
 
