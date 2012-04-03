@@ -30,11 +30,15 @@ public:
 	int getSpeedLevel();
 	int getOverallPosition();
 	int getCurrentCheckpoint();
+	int getRocketAmmo();
+	int getSpeedAmmo();
+	int getLandmineAmmo();
 	float getRotationAngle();
 	hkVector4 getRacerPosition();
 
 private:
 	void updateWaypointsAndLap(float seconds, Waypoint* waypoints[]);
+	void acquireAmmo();
 	void upgrade();
 	void downgrade();
 	float calculateAngleToPosition(hkVector4* position);

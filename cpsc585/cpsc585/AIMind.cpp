@@ -68,15 +68,26 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 	updateWaypointsAndLap(seconds, waypoints);
 
+	/*
 	if(checkPointTimer->downgradeAbility()){
 		downgrade();
 	}
+	*/
 
+	/* LIKELY TO EVENTUALLY REMOVE THIS COMPLETELY (THE UPGRADE SYSTEM)
 	if(racer->kills > knownNumberOfKills){
 		knownNumberOfKills += 1;
 		upgrade();
 	}
+	*/
 
+	if(racer->kills > knownNumberOfKills){
+		knownNumberOfKills += 1;
+		acquireAmmo();
+	}
+	else if(racer->kills < knownNumberOfKills){
+		knownNumberOfKills = racer->kills;
+	}
 
 	switch(racerType){
 		case PLAYER:
@@ -148,8 +159,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				racer->computeRPM();
 
 
-				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown()){
+				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown() && speedBoost->getAmmoCount() > 0){
 					speedBoost->startCooldownTimer();
+					speedBoost->decreaseAmmoCount();
 					Sound::sound->playBoost(racer->emitter);
 				}
 
@@ -158,15 +170,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					racer->fireLaser();
 				}
 
-				if (hud->getSelectedAbility() == ROCKET && intention.rightTrig && !rocket->onCooldown())
+				if (hud->getSelectedAbility() == ROCKET && intention.rightTrig && !rocket->onCooldown() && rocket->getAmmoCount() > 0)
 				{
 					rocket->startCooldownTimer();
+					rocket->decreaseAmmoCount();
 					racer->fireRocket();
 				}
 
-				if (hud->getSelectedAbility() == LANDMINE && intention.rightTrig && !landmine->onCooldown())
+				if (hud->getSelectedAbility() == LANDMINE && intention.rightTrig && !landmine->onCooldown() && landmine->getAmmoCount() > 0)
 				{
 					landmine->startCooldownTimer();
+					landmine->decreaseAmmoCount();
 					racer->dropMine();
 				}
 
@@ -264,9 +278,11 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 				if(!speedBoost->onCooldown() && 
 					(waypoints[previousWaypoint]->getWaypointType() == TURN_POINT || waypoints[previousWaypoint]->getWaypointType() == SHARP_POINT)
-					&& waypoints[currentWaypoint]->getWaypointType() == CHECK_POINT){
+					&& waypoints[currentWaypoint]->getWaypointType() == CHECK_POINT
+					&& speedBoost->getAmmoCount() > 0){
 					speedBoost->startCooldownTimer();
-					racer->sound->playBoost(racer->emitter);
+					speedBoost->decreaseAmmoCount();
+					Sound::sound->playBoost(racer->emitter);
 				}
 
 				if(speedBoost->onCooldown()){
@@ -297,7 +313,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						hkSimdReal distance = (racers[i]->body->getPosition()).distanceTo(racer->body->getPosition());
 						hkVector4 vel = racers[i]->body->getLinearVelocity();
 						float velocity = vel.dot3(racers[i]->drawable->getZhkVector());
-						if(distance.isLess(40) && angle < 0.34906 && velocity > 30){ // add a speed condition here (speed > 40)
+						if(distance.isLess(80) && angle < 0.34906 && velocity > 30){ // add a speed condition here (speed > 40)
 							targetAssigned = true; // If there is a target, attack mode (targetAssigned) is enabled, and the target determined
 							target = racers[i];
 							break;
@@ -308,6 +324,19 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					}
 				}
 				if(targetAssigned){ // Once targeted, trys to aim at the racer, and when aiming close enough, shoots the laser
+					/*
+					hkVector4 targetPos = target->body->getPosition();
+					racer->lookDir = targetPos;
+					racer->lookDir.sub3clobberW(racer->body->getPosition());
+					racer->lookDir.normalize3();
+					*/
+					/*
+					hkVector4 racerPos = racer->body->getPosition();
+					targetPos.sub(targetPos);
+					racer->lookDir = targetPos;
+					*/
+
+					
 					hkVector4 position = target->body->getPosition();
 					float angle = calculateAngleToPosition(&position);
 					hkVector4 A = racer->drawable->getZhkVector();
@@ -335,6 +364,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					if(laser->onCooldown()){
 						laser->updateCooldown(seconds);
 					}
+					
 				}
 				else if(avoidanceEngaged){
 					racer->steer(seconds, 1.0f);
@@ -511,6 +541,21 @@ void AIMind::togglePlayerComputerAI()
 	}
 }
 
+void AIMind::acquireAmmo()
+{
+	srand((unsigned)time(0));
+	int random_integer = rand()%100;
+	if(random_integer > 66){
+		landmine->increaseAmmoCount();
+	}
+	else if(random_integer > 33){
+		speedBoost->increaseAmmoCount();
+	}
+	else if(random_integer > 0){
+		rocket->increaseAmmoCount();
+	}
+}
+
 /*
 	When a racer gets a kill, this function will determine 
 	an ability to upgrade and change its associated paramaters.
@@ -658,4 +703,19 @@ int AIMind::getCurrentCheckpoint()
 float AIMind::getRotationAngle()
 {
 	return rotationAngle;
+}
+
+int AIMind::getRocketAmmo()
+{
+	return rocket->getAmmoCount();
+}
+
+int AIMind::getLandmineAmmo()
+{
+	return landmine->getAmmoCount();
+}
+
+int AIMind::getSpeedAmmo()
+{
+	return speedBoost->getAmmoCount();
 }

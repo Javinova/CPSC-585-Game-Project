@@ -13,15 +13,19 @@ Ability::Ability(AbilityType _abilityType)
 		lengthOfCooldown = 15; // Time until boost can be used again
 		boostValue = 0.5f; // Additional speed that the boost provides
 		boostDuration = 3; // Time in seconds that the boost lasts
+		ammoCount = 0;
 		break;
 	case LASER:
 		lengthOfCooldown = 2; // Time until laser can be used again
+		ammoCount = -1;
 		break;
 	case ROCKET:
 		lengthOfCooldown = 1.0f; // Time until rocket can be used again
+		ammoCount = 0;
 		break;
 	case LANDMINE:
 		lengthOfCooldown = 0.5f; // Time until landmine can be used again
+		ammoCount = 0;
 		break;
 	}
 	
@@ -111,4 +115,21 @@ void Ability::update(int levelOfAbility)
 int Ability::getAbilityLevel()
 {
 	return abilityLevel;
+}
+
+void Ability::decreaseAmmoCount()
+{
+	if(ammoCount > 0){
+		ammoCount -= 1;
+	}
+}
+
+void Ability::increaseAmmoCount()
+{
+	ammoCount += 1;
+}
+
+int Ability::getAmmoCount()
+{
+	return ammoCount;
 }

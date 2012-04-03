@@ -791,6 +791,12 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racerMinds[racerIndex]->getCurrentCheckpoint(), buf21, 10);
 		char buf22[33];
 		_itoa_s((int)(racerMinds[racerIndex]->getRotationAngle()*1000.0f), buf22, 10);
+		char buf23[33];
+		_itoa_s((int)(racerMinds[racerIndex]->getSpeedAmmo()), buf23, 10);
+		char buf24[33];
+		_itoa_s((int)(racerMinds[racerIndex]->getRocketAmmo()), buf24, 10);
+		char buf25[33];
+		_itoa_s((int)(racerMinds[racerIndex]->getLandmineAmmo()), buf25, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -814,15 +820,19 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Current Lap: ").append(buf15),
 			std::string("Kills: ").append(buf10),
 			std::string("Current Waypoint: ").append(buf11),
-			std::string("Current Checkpoint: ").append(buf22),
-			std::string("Checkpoint Time: ").append(buf12),
-			std::string("Speed level: ").append(buf21),
-			std::string("Speed Boost Cooldown: ").append(buf13),
+			//std::string("Current Checkpoint: ").append(buf22),
+			//std::string("Checkpoint Time: ").append(buf12),
+			//std::string("Speed level: ").append(buf21),
+			//std::string("Speed Boost Cooldown: ").append(buf13),
 			std::string("Health: ").append(buf16),
-			std::string("Laser Level: ").append(buf17),
+			//std::string("Laser Level: ").append(buf17),
 			std::string("Placement: ").append(buf18),
 			std::string("Overall position value: ").append(buf19),
-			std::string("Rotation Angle: ").append(buf22)};
+			//std::string("Rotation Angle: ").append(buf22),
+			std::string("Ammo Counts:"),
+			std::string("Speed Boost: ").append(buf23),
+			std::string("Rocket: ").append(buf24),
+			std::string("Landmine: ").append(buf25)};
 	
 		renderer->setText(stringArray, sizeof(stringArray) / sizeof(std::string));
 }
