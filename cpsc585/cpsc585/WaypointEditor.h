@@ -2,6 +2,7 @@
 
 #include "Intention.h"
 #include "Racer.h"
+#include "Waypoint.h"
 #include <iostream>
 #include <fstream>
 
@@ -15,6 +16,7 @@ public:
 	void update(Racer* racer);
 	void openFile();
 	void closeFile();
+	void writeToFile(Waypoint* waypoints[], int numberOfWaypoints, std::string fileName);
 private:
 	int waypointNumber;
 	ofstream file;

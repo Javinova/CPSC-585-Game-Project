@@ -641,6 +641,10 @@ void AI::simulate(float seconds)
 		racers[racerIndex]->reset(&(hkVector4(cwPosition.x, cwPosition.y, cwPosition.z)), rotation);
 	}
 
+	if(intention.aPressed){
+		wpEditor->writeToFile(waypoints, NUMWAYPOINTS, "Figure8Waypoints.txt");
+	}
+
 	physics->step(seconds);
 
 	for(int i = 0; i < 5; i++){

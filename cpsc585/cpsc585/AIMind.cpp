@@ -331,9 +331,11 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					racer->lookDir.normalize3();
 					*/
 					/*
+					hkVector4 targetPos = target->body->getPosition();
 					hkVector4 racerPos = racer->body->getPosition();
-					targetPos.sub(targetPos);
-					racer->lookDir = targetPos;
+					targetPos.sub(racerPos);
+					racer->lookDir.setXYZ(targetPos);
+					racer->lookDir.normalize3();
 					*/
 
 					
@@ -364,6 +366,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					if(laser->onCooldown()){
 						laser->updateCooldown(seconds);
 					}
+					
 					
 				}
 				else if(avoidanceEngaged){
@@ -413,6 +416,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				
 
 				racer->lookDir(1) = 0.0f;
+				
 
 				
 				/****************************************************/

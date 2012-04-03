@@ -63,3 +63,34 @@ void WaypointEditor::closeFile()
 		file.close();
 	}
 }
+
+void WaypointEditor::writeToFile(Waypoint* waypoints[], int numberOfWaypoints, std::string fileName)
+{
+	file.open(fileName);
+	if(file.is_open())
+	{
+		char numWaypoints[33];
+		_itoa_s(numberOfWaypoints, numWaypoints, 10);
+		file << numWaypoints << "\n";
+
+		for(int i = 0; i < numberOfWaypoints; i++)
+		{
+			D3DXVECTOR3 wpPosition = waypoints[i]->drawable->getPosition();
+			char buf[33];
+			_itoa_s((int)wpPosition.x, buf, 10);
+			char buf2[33];
+			_itoa_s((int)wpPosition.y, buf2, 10);
+			char buf3[33];
+			_itoa_s((int)wpPosition.z, buf3, 10);
+			char buf4[33];
+			_itoa_s(waypoints[i]->getWaypointType(), buf4, 10);
+			char buf5[33];
+			_itoa_s((int)waypoints[i]->getRadius(), buf5, 10);
+			//      Xpos          Ypos           Zpos		    wpType		   wpRadius
+			file << buf << '|' << buf2 << '|' << buf3 << '|' << buf4 << '|' << buf5 << "\n";
+			
+		}
+	
+		file.close();
+	}
+}
