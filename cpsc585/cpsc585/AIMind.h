@@ -4,6 +4,8 @@
 #include "Waypoint.h"
 #include "Ability.h"
 #include "CheckpointTimer.h"
+#include "Physics.h"
+#include "Renderer.h"
 #include <time.h>
 
 #define _USE_MATH_DEFINES
@@ -26,7 +28,6 @@ public:
 	int getSpeedCooldown();
 	int getLaserLevel();
 	int getSpeedLevel();
-	int getLaserDamage();
 	int getOverallPosition();
 	int getCurrentCheckpoint();
 	float getRotationAngle();
@@ -42,6 +43,8 @@ private:
 
 	Ability* speedBoost;
 	Ability* laser;
+	Ability* rocket;
+	Ability* landmine;
 
 	CheckpointTimer* checkPointTimer;
 

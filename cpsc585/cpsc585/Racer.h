@@ -9,14 +9,19 @@
 #include "RearWheel.h"
 #include "ConfigReader.h"
 #include "LaserModel.h"
+#include "DynamicObjManager.h"
 
 enum RacerType { RACER1, RACER2, RACER3, RACER4, RACER5, RACER6, RACER7, RACER8 };
 enum WheelType { FRONT, REAR };
 
+
+#define LASER_DAMAGE 10
+
+
 class Racer
 {
 public:
-	Racer(IDirect3DDevice9* device, Renderer* r, Physics* p, Sound* s, RacerType racerType);
+	Racer(IDirect3DDevice9* device, RacerType racerType);
 	~Racer(void);
 	void setPosAndRot(float posX, float posY, float posZ,
 		float rotX, float rotY, float rotZ);	// In Radians
@@ -28,15 +33,13 @@ public:
 
 	int getIndex();
 	void reset(hkVector4* resetPos, float rotation);	// Reset position and set velocity/momentum to 0
-
 	void applyForces(float seconds);	// Call this every frame BEFORE stepping physics!
-
 	void fireLaser();
-	void giveDamage(Racer* attacker, int damage);
-
-	void setDamageOutput(int damage);
-	int getDamageOutput();
+	void fireRocket();
+	void dropMine();
+	void applyDamage(Racer* attacker, int damage);
 	void computeRPM();
+	
 
 private:
 	void buildConstraint(hkVector4* attachmentPt, hkpGenericConstraintData* constraint, WheelType type);
@@ -46,6 +49,7 @@ private:
 	void applyDrag(float seconds);
 	void applyTireRaycast();
 	void respawn();
+	hkpWorldRayCastInput fireWeapon();
 
 public:
 	Drawable* drawable;
@@ -63,10 +67,14 @@ public:
 	float currentAcceleration;
 		
 	static ConfigReader config;
-	static Sound* sound;
 
 	
 	X3DAUDIO_EMITTER* emitter;
+
+	static hkVector4 attachCannon;
+	static hkReal chassisMass;
+	
+	IXAudio2SourceVoice* engineVoice;
 
 private:
 	Drawable* laserDraw;
@@ -80,10 +88,6 @@ private:
 
 	float currentSteering;
 
-	int damageOutput;
-
-	static hkpWorld* physicsWorld;
-
 	// Static elements that are common between all Racers
 	static int xID;
 	static int yID;
@@ -96,9 +100,6 @@ private:
 	static hkVector4 attachFR;
 	static hkVector4 attachRL;
 	static hkVector4 attachRR;
-	static hkVector4 attachLaser;
-
-	static hkReal chassisMass;
 
 	static float rearSpringK;
 	static float frontSpringK;

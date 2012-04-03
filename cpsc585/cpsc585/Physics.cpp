@@ -1,9 +1,13 @@
 #include "Physics.h"
 #include "Havok.h"	// Leave this define here, don't move it to Physics.h
 
+hkpWorld* Physics::world = NULL;
+Physics* Physics::physics = NULL;
+
 Physics::Physics(void)
 {
 	filters = NULL;
+	physics = this;
 }
 
 

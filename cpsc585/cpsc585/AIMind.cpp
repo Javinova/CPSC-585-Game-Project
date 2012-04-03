@@ -16,6 +16,8 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
 	checkPointTimer = new CheckpointTimer(racer);
 	speedBoost = new Ability(SPEED);
 	laser = new Ability(LASER);
+	rocket = new Ability(ROCKET);
+	landmine = new Ability(LANDMINE);
 	knownNumberOfKills = 0;
 	rotationAngle = 0;
 }
@@ -38,6 +40,18 @@ AIMind::~AIMind(void)
 	{
 		delete laser;
 		laser = NULL;
+	}
+
+	if (rocket)
+	{
+		delete rocket;
+		rocket = NULL;
+	}
+
+	if (landmine)
+	{
+		delete landmine;
+		landmine = NULL;
 	}
 }
 
@@ -62,6 +76,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		knownNumberOfKills += 1;
 		upgrade();
 	}
+
 
 	switch(racerType){
 		case PLAYER:
@@ -115,7 +130,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 						finalLookDir(1) = height;
 
-						racer->lookDir.set(finalLookDir(0), finalLookDir(1), finalLookDir(2));
+						racer->lookDir.setXYZ(finalLookDir);
 					}
 				}
 
@@ -135,7 +150,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown()){
 					speedBoost->startCooldownTimer();
-					racer->sound->playBoost(racer->emitter);
+					Sound::sound->playBoost(racer->emitter);
 				}
 
 				if(hud->getSelectedAbility() == LASER && intention.rightTrig && !laser->onCooldown()){
@@ -143,21 +158,44 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					racer->fireLaser();
 				}
 
+				if (hud->getSelectedAbility() == ROCKET && intention.rightTrig && !rocket->onCooldown())
+				{
+					rocket->startCooldownTimer();
+					racer->fireRocket();
+				}
+
+				if (hud->getSelectedAbility() == LANDMINE && intention.rightTrig && !landmine->onCooldown())
+				{
+					landmine->startCooldownTimer();
+					racer->dropMine();
+				}
+
+
 				if(speedBoost->onCooldown()){
 					char buf1[33];
-					speedBoost->updateCooldown();
+					speedBoost->updateCooldown(seconds);
 					std::string stringArray[] = { buf1 };//, buf2, buf3, buf4 };
 					//renderer->setText(stringArray, 1);
 				}
 
 				if(laser->onCooldown()){
-					laser->updateCooldown();
+					laser->updateCooldown(seconds);
+				}
+
+				if(rocket->onCooldown()){
+					rocket->updateCooldown(seconds);
+				}
+
+				if(landmine->onCooldown()){
+					landmine->updateCooldown(seconds);
 				}
 
 				/************* STEERING CALCULATIONS *************/
 				hkVector4 A = racer->drawable->getZhkVector();
 				hkVector4 C = racer->body->getPosition();
-				hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+				hkVector4 B;
+				B.setXYZ(racer->lookDir);
+				B(1) = 0.0f;
 
 				float angle = acos(B.dot3(A));
 
@@ -233,7 +271,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				if(speedBoost->onCooldown()){
 					char buf1[33];
-					speedBoost->updateCooldown();
+					speedBoost->updateCooldown(seconds);
 					_itoa_s(speedBoost->getCooldownTime(), buf1, 10);
 				}
 
@@ -249,7 +287,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						hkVector4 position = racers[i]->body->getPosition();
 						float angle = calculateAngleToPosition(&position);
 						hkVector4 A = racer->drawable->getZhkVector();
-						hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+						hkVector4 B;
+						B.setXYZ(racer->lookDir);
+						B(1) = 0.0f;
 
 						B.dot3(A);
 						// Sign determines if it is pointing to the right or the left of the current waypoint
@@ -271,7 +311,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					hkVector4 position = target->body->getPosition();
 					float angle = calculateAngleToPosition(&position);
 					hkVector4 A = racer->drawable->getZhkVector();
-					hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+					hkVector4 B;
+					B.setXYZ(racer->lookDir);
+					B(1) = 0.0f;
 
 					B.dot3(A);
 					// Sign determines if it is pointing to the right or the left of the current waypoint
@@ -291,7 +333,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						targetAssigned = false;
 					}
 					if(laser->onCooldown()){
-						laser->updateCooldown();
+						laser->updateCooldown(seconds);
 					}
 				}
 				else if(avoidanceEngaged){
@@ -313,7 +355,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					float angle = calculateAngleToPosition(&position);
 
 					hkVector4 A = racer->drawable->getZhkVector();
-					hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+					hkVector4 B;
+					B.setXYZ(racer->lookDir);
+					B(1) = 0.0f;
 
 					B.dot3(A);
 					// Sign determines if it is pointing to the right or the left of the current waypoint
@@ -345,7 +389,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				racer->applyForces(seconds);
 
-
+				racer->computeRPM();
 				
 				break;
 			}
@@ -365,10 +409,15 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		if(distanceTo < 1){
 			D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
 			D3DXVECTOR3 nextPosition = waypoints[currentWaypoint+1]->drawable->getPosition();
-			hkVector4 wayptVec = hkVector4(nextPosition.x, nextPosition.y, nextPosition.z);
+			hkVector4 wayptVec;
+			wayptVec.set(nextPosition.x, nextPosition.y, nextPosition.z);
+
 			wayptVec.sub(hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
-			hkVector4* resetPosition = new hkVector4(cwPosition.x, cwPosition.y, cwPosition.z);
-			racer->reset(resetPosition, 0);
+
+			hkVector4 resetPosition;
+			resetPosition.set(cwPosition.x, cwPosition.y, cwPosition.z);
+
+			racer->reset(&resetPosition, 0);
 			wayptVec(1) = 0.0f;
 			wayptVec.normalize3();
  
@@ -383,8 +432,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
  
 			rotationAngle = angle;
  
-			racer->reset(resetPosition, angle);
-			calculateAngleToPosition(new hkVector4(nextPosition.x, nextPosition.y, nextPosition.z));
+			racer->reset(&resetPosition, angle);
+			calculateAngleToPosition(&(hkVector4(nextPosition.x, nextPosition.y, nextPosition.z)));
 		}
 		else{
 			lastPosition = currentPosition;
@@ -393,8 +442,6 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	}
 
 	overallPosition = currentWaypoint + (currentLap-1)*80; // 80 represent the number of waypoints
-
-	
 }
 
 float AIMind::calculateAngleToPosition(hkVector4* position)
@@ -405,7 +452,9 @@ float AIMind::calculateAngleToPosition(hkVector4* position)
 
 	hkVector4 A = racer->drawable->getZhkVector();
 	hkVector4 C = racer->body->getPosition();
-	hkVector4 B = hkVector4(racer->lookDir(0), 0, racer->lookDir(2));
+	hkVector4 B;
+	B.setXYZ(racer->lookDir);
+	B(1) = 0.0f;
 
 	float angle = acos(B.dot3(A));
 
@@ -495,7 +544,10 @@ void AIMind::upgrade()
 	if(upgradeLaser){
 		if(laserLevel < 3){
 			laser->update(laserLevel + 1);
-			racer->setDamageOutput(laser->getLaserDamage());
+
+			// The following method in racer was removed, since we're changing
+			// the game's mechanics
+			//racer->setDamageOutput(laser->getLaserDamage());
 		}
 	}
 	else if(upgradeSpeed){
@@ -534,7 +586,10 @@ void AIMind::downgrade()
 	if(downgradeLaser){
 		if(laserLevel > 1){
 			laser->update(laserLevel - 1);
-			racer->setDamageOutput(laser->getLaserDamage());
+
+			// The following method has been removed since we're
+			// changing game mechanics
+			//racer->setDamageOutput(laser->getLaserDamage());
 		}
 	}
 	else if(downgradeSpeed){
@@ -588,11 +643,6 @@ int AIMind::getPlacement()
 int AIMind::getLaserLevel()
 {
 	return laser->getAbilityLevel();
-}
-
-int AIMind::getLaserDamage()
-{
-	return laser->getLaserDamage();
 }
 
 int AIMind::getSpeedLevel()

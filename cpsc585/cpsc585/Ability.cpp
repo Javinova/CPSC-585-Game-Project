@@ -12,15 +12,16 @@ Ability::Ability(AbilityType _abilityType)
 	case SPEED:
 		lengthOfCooldown = 15; // Time until boost can be used again
 		boostValue = 0.5f; // Additional speed that the boost provides
-		boostDuration = 3; // Time in seconds that the boost last
+		boostDuration = 3; // Time in seconds that the boost lasts
 		break;
 	case LASER:
-		laserDamage = 34;
-		lengthOfCooldown = 3; // Time until boost can be used again
+		lengthOfCooldown = 2; // Time until laser can be used again
 		break;
-	case LEFT:
+	case ROCKET:
+		lengthOfCooldown = 1.0f; // Time until rocket can be used again
 		break;
-	case RIGHT:
+	case LANDMINE:
+		lengthOfCooldown = 0.5f; // Time until landmine can be used again
 		break;
 	}
 	
@@ -38,7 +39,6 @@ int Ability::getCooldownTime()
 
 void Ability::startCooldownTimer()
 {
-	oldTime = time(NULL);
 	cooldownTime = lengthOfCooldown;
 }
 
@@ -62,13 +62,9 @@ bool Ability::currentlyActive()
 	}
 }
 
-void Ability::updateCooldown()
-{
-	newTime = time(NULL);
-		
-	cooldownTime = (float)(cooldownTime - difftime(newTime, oldTime));
-
-	oldTime = newTime;
+void Ability::updateCooldown(float seconds)
+{		
+	cooldownTime -= seconds;
 }
 
 float Ability::getBoostValue()
@@ -102,37 +98,10 @@ void Ability::update(int levelOfAbility)
 		}
 		break;
 	case LASER:
-		if(levelOfAbility == 1){
-			laserDamage = 34;
-		}
-		else if(levelOfAbility == 2){
-			laserDamage = 67;
-		}
-		else if(levelOfAbility == 3){
-			laserDamage = 100;
-		}
 		break;
-	case LEFT:
-		if(levelOfAbility == 1){
-
-		}
-		else if(levelOfAbility == 2){
-
-		}
-		else if(levelOfAbility == 3){
-
-		}
+	case ROCKET:
 		break;
-	case RIGHT:
-		if(levelOfAbility == 1){
-
-		}
-		else if(levelOfAbility == 2){
-
-		}
-		else if(levelOfAbility == 3){
-
-		}
+	case LANDMINE:
 		break;
 	}
 
@@ -142,9 +111,4 @@ void Ability::update(int levelOfAbility)
 int Ability::getAbilityLevel()
 {
 	return abilityLevel;
-}
-
-int Ability::getLaserDamage()
-{
-	return laserDamage;
 }
