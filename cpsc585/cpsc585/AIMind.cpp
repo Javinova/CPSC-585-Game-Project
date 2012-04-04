@@ -294,12 +294,26 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 
 				if(speedBoost->onCooldown()){
-					char buf1[33];
 					speedBoost->updateCooldown(seconds);
-					_itoa_s(speedBoost->getCooldownTime(), buf1, 10);
+				}
+
+				hkSimdReal distanceToWaypoint = (racer->body->getPosition()).distanceTo(waypoints[currentWaypoint]->wpPosition);
+				if(!landmine->onCooldown() && landmine->getAmmoCount() > 0)
+					{
+						landmine->startCooldownTimer();
+						landmine->decreaseAmmoCount();
+						racer->dropMine();
+					}
+
+				if(landmine->onCooldown()){
+					landmine->updateCooldown(seconds);
 				}
 
 				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
+
+
+
+
 
 				/************* STEERING CALCULATIONS *************/
 
@@ -343,17 +357,27 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					targetPos.normalize3();
 
 					racer->lookDir.setXYZ(targetPos);
-					
 
-					if (!rocket->onCooldown())
+					if (!rocket->onCooldown() && rocket->getAmmoCount() > 0)
 					{
 						rocket->startCooldownTimer();
+						rocket->decreaseAmmoCount();
 						racer->fireRocket();
+						targetAssigned = false;
+					}
+					else if(!laser->onCooldown())
+					{
+						laser->startCooldownTimer();
+						racer->fireLaser();
 						targetAssigned = false;
 					}
 
 					if(rocket->onCooldown()){
 						rocket->updateCooldown(seconds);
+					}
+
+					if(laser->onCooldown()){
+						laser->updateCooldown(seconds);
 					}
 					
 					

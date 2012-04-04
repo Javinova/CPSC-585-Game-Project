@@ -59,6 +59,7 @@ public:
 	int health;
 	int kills;
 	int suicides;
+	int deaths;
 	float laserTime;
 	bool laserReady;
 
