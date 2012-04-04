@@ -158,6 +158,14 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				racer->computeRPM();
 
+				racer->braking = false;
+
+				if (intention.leftTrig && ((hkMath::abs(velocity) > 0.1f) ||
+					 (hkMath::abs((racer->body->getAngularVelocity()).dot3(racer->body->getAngularVelocity())) > 0.1f)))
+				{
+					racer->brake(seconds);
+				}
+
 
 				if(hud->getSelectedAbility() == SPEED && intention.rightTrig && !speedBoost->onCooldown() && speedBoost->getAmmoCount() > 0){
 					speedBoost->startCooldownTimer();
@@ -337,15 +345,15 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					racer->lookDir.setXYZ(targetPos);
 					
 
-					if (!laser->onCooldown())
+					if (!rocket->onCooldown())
 					{
-						laser->startCooldownTimer();
-						racer->fireLaser();
+						rocket->startCooldownTimer();
+						racer->fireRocket();
 						targetAssigned = false;
 					}
 
-					if(laser->onCooldown()){
-						laser->updateCooldown(seconds);
+					if(rocket->onCooldown()){
+						rocket->updateCooldown(seconds);
 					}
 					
 					

@@ -13,14 +13,13 @@ Rocket::Rocket(IDirect3DDevice9* device)
 	hkVector4 endAxis;
 	endAxis.set(0, 0, 0.5f);
 
-	hkReal radius = 0.1f;
+	hkReal radius = 0.2f;
 
 	hkpRigidBodyCinfo info;
 	info.m_gravityFactor = 0.0f;
 	info.m_friction = 0.0f;
 	info.m_shape = new hkpCylinderShape(startAxis, endAxis, radius);
-	info.m_qualityType = HK_COLLIDABLE_QUALITY_MOVING;
-	info.m_angularDamping = 1.0f;
+	info.m_qualityType = HK_COLLIDABLE_QUALITY_CRITICAL;
 	
 	body = new hkpRigidBody(info);		//Create rigid body
 	body->setLinearVelocity(hkVector4(0, 0, 0));
@@ -117,7 +116,22 @@ void Rocket::update(float seconds)
 		lifetime -= seconds;
 		
 		if (lifetime <= 0.0f)
+		{
 			destroyed = true;
+		}
+		else
+		{
+			Smoke* smoke = new Smoke(Renderer::device);
+
+			hkVector4 pos;
+			pos.setXYZ(body->getPosition());
+			pos(2) -= 0.7f;
+
+			smoke->setPos(&pos);
+			smoke->initialize(Renderer::device, 1.5f);
+			DynamicObjManager::manager->addObject(smoke);
+			smoke = NULL;
+		}
 	}
 }
 

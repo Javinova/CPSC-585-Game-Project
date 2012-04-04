@@ -16,15 +16,15 @@ Ability::Ability(AbilityType _abilityType)
 		ammoCount = 0;
 		break;
 	case LASER:
-		lengthOfCooldown = 2; // Time until laser can be used again
+		lengthOfCooldown = 2.0f; // Time until laser can be used again
 		ammoCount = -1;
 		break;
 	case ROCKET:
-		lengthOfCooldown = 1.0f; // Time until rocket can be used again
+		lengthOfCooldown = 2.0f; // Time until rocket can be used again
 		ammoCount = 0;
 		break;
 	case LANDMINE:
-		lengthOfCooldown = 0.5f; // Time until landmine can be used again
+		lengthOfCooldown = 1.0f; // Time until landmine can be used again
 		ammoCount = 0;
 		break;
 	}

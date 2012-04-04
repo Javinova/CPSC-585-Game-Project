@@ -4,9 +4,10 @@
 #include "Physics.h"
 #include "DynamicObj.h"
 #include "Racer.h"
+#include "Smoke.h"
 
-#define BLAST_RADIUS 10.0
-#define BLAST_DAMAGE 25.0
+#define BLAST_RADIUS 20.0
+#define BLAST_DAMAGE 15.0
 
 class Explosion :
 	public DynamicObj
