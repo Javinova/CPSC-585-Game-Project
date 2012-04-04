@@ -394,7 +394,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						racer->steer(seconds, 0.0f);
 					}
 				}
-
+				
+				hkVector4 racerPos = racer->body->getPosition();
+				hkSimdReal camX = racerPos.getComponent(0);
+				hkSimdReal camY = racerPos.getComponent(1);
+				hkSimdReal camZ = racerPos.getComponent(2);
+				camX.add(4);
+				camY.add(4);
+				camZ.sub(2);
+				hkVector4 camPos = hkVector4(camX, camY, camZ);
+				racerPos.sub(camPos);
+				racer->lookDir = racerPos;
 				
 				
 				/****************************************************/
