@@ -805,6 +805,10 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 		_itoa_s(racers[racerIndex]->suicides, buf26, 10);
 		char buf27[33];
 		_itoa_s(racers[racerIndex]->deaths, buf27, 10);
+		char buf28[33];
+		_itoa_s(racers[racerIndex]->givenDamage, buf28, 10);
+		char buf29[33];
+		_itoa_s(racers[racerIndex]->takenDamage, buf29, 10);
 		
 		std::string stringArray[] = { getFPSString(seconds * 1000.0f), 
 			"X: " + boolToString(intention.xPressed),
@@ -829,6 +833,8 @@ void AI::displayDebugInfo(Intention intention, float seconds)
 			std::string("Kills: ").append(buf10),
 			std::string("Deaths: ").append(buf27),
 			std::string("Suicides: ").append(buf26),
+			std::string("Given Damage: ").append(buf28),
+			std::string("Taken Damage: ").append(buf29),
 			std::string("Current Waypoint: ").append(buf11),
 			//std::string("Current Checkpoint: ").append(buf22),
 			//std::string("Checkpoint Time: ").append(buf12),

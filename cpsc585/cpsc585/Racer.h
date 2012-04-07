@@ -60,6 +60,8 @@ public:
 	int kills;
 	int suicides;
 	int deaths;
+	int takenDamage;
+	int givenDamage;
 	float laserTime;
 	bool laserReady;
 

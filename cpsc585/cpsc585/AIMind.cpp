@@ -171,6 +171,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					speedBoost->startCooldownTimer();
 					speedBoost->decreaseAmmoCount();
 					Sound::sound->playBoost(racer->emitter);
+					hkVector4 impulse = racer->drawable->getZhkVector();
+					impulse.mul(150.0f*racer->chassisMass*speedBoost->getBoostValue());
+					racer->body->applyLinearImpulse(impulse);
 				}
 
 				if(hud->getSelectedAbility() == LASER && intention.rightTrig && !laser->onCooldown()){
@@ -291,6 +294,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					speedBoost->startCooldownTimer();
 					speedBoost->decreaseAmmoCount();
 					Sound::sound->playBoost(racer->emitter);
+					hkVector4 impulse = racer->drawable->getZhkVector();
+					impulse.mul(150.0f*racer->chassisMass*speedBoost->getBoostValue());
+					racer->body->applyLinearImpulse(impulse);
 				}
 
 				if(speedBoost->onCooldown()){
