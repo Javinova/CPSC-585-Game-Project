@@ -266,7 +266,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				float baseSpeed = 0.8f;
 				hkVector4 vel = racer->body->getLinearVelocity();
 				float velocity = vel.dot3(racer->drawable->getZhkVector());
-				if(currentWaypoint+1 != 80){
+				if(currentWaypoint+1 != 83){
 					if(waypoints[currentWaypoint+1]->getWaypointType() == TURN_POINT && velocity > 70.0f){
 						baseSpeed = 0.0f;
 					}
@@ -282,7 +282,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				*/
 				int previousWaypoint = 0;
 				if(currentWaypoint - 1 == -1){
-					previousWaypoint = 79;
+					previousWaypoint = 82;
 				}
 				else{
 					previousWaypoint = currentWaypoint - 1;
@@ -392,17 +392,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					racer->steer(seconds, 1.0f);
 				}
 				else{
-					/* Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
-					---- For the current map, this is a bad design.
+					// Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
+					//---- For the current map, this is a bad design.
 					int indexer;
-					if(currentWaypoint == 79){
+					if(currentWaypoint == 82){
 						indexer = 0;
 					}
 					else{
 						indexer = currentWaypoint+1;
 					}
-					*/
-					hkVector4 position = waypoints[currentWaypoint]->wpPosition;
+					
+					hkVector4 position = waypoints[indexer]->wpPosition;
 
 					float angle = calculateAngleToPosition(&position);
 
@@ -484,7 +484,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 			hkVector4 z = racer->drawable->getZhkVector();
 			hkVector4 x = racer->drawable->getXhkVector();
  
-			float angle = hkMath::acos(z.dot3(wayptVec)); // angle is between 0 and 180
+			float angle = hkMath::acos(z.dot3(wayptVec)); // angle is between 0 and 183
 			
 			// if the vector is on the LEFT side of the car...
 			if (x.dot3(wayptVec) < 0.0f)
@@ -501,7 +501,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		oldTime = newTime;
 	}
 
-	overallPosition = currentWaypoint + (currentLap-1)*80; // 80 represent the number of waypoints
+	overallPosition = currentWaypoint + (currentLap-1)*83; // 83 represent the number of waypoints
 }
 
 float AIMind::calculateAngleToPosition(hkVector4* position)
@@ -532,7 +532,7 @@ void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[])
 {
 	int prevWaypoint;
 	if(currentWaypoint - 1 == -1){
-		prevWaypoint = 79;
+		prevWaypoint = 82;
 	}
 	else{
 		prevWaypoint = currentWaypoint - 1;
@@ -551,7 +551,7 @@ void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[])
 	}
 	if(waypoints[currentWaypoint]->passedWaypoint(currentPos, prevPos, &racer->body->getPosition())
 		|| (distanceOfRacer.isLess(30) && waypoints[currentWaypoint]->getWaypointType() != LAP_POINT)){
-		if(currentWaypoint == 79){
+		if(currentWaypoint == 82){
 			currentWaypoint = 0;
 		}
 		else{
