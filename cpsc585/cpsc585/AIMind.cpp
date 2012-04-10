@@ -292,11 +292,44 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						}
 					}
 					else{ // Teleport the racers that are behind closer to the player if they get too far behind
+
 						baseSpeed = 0.8f;
+						int distance = racerPlacement[indexOfPlayer]->getOverallPosition() - overallPosition;
+						if(distance > 5) // If the racer is behind more than 10 waypoints of the racer, will teleport them closer.
+						{
+							int newCurrent = racerPlacement[indexOfPlayer]->getCurrentWaypoint()-2;
+							if(newCurrent >= 0){
+								int previousWaypoint = currentWaypoint;
+								currentWaypoint = newCurrent;
+								if(previousWaypoint > currentWaypoint){ // Accounts for if the racer teleports past the lap marker
+									currentLap += 1;
+								}
+								int nextWaypoint = currentWaypoint + 1;
+								if(nextWaypoint == 83){
+									nextWaypoint = 0;
+								}
+							
+							
+							
+								D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
+								D3DXVECTOR3 nextPosition = waypoints[currentWaypoint+1]->drawable->getPosition();
+								hkVector4 wayptVec;
+								wayptVec.set(nextPosition.x, nextPosition.y, nextPosition.z);
+
+								wayptVec.sub(hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
+
+								hkVector4 resetPosition;
+								resetPosition.set(cwPosition.x, cwPosition.y, cwPosition.z);
+
+			
+								racer->reset(&resetPosition, 0);
+							}
+						}
+
 					}
 				}
 				else{
-					baseSpeed = 0.8f;
+					baseSpeed = 0.8f; // Constant speed that racers go at when in multiplayer games
 				}
 				hkVector4 vel = racer->body->getLinearVelocity();
 				float velocity = vel.dot3(racer->drawable->getZhkVector());
@@ -428,6 +461,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				else{
 					// Using the indexer in place of currentWaypoint would allow the ai to look one waypoint ahead for steering.
 					//---- For the current map, this is a bad design.
+					/*
 					int indexer;
 					if(currentWaypoint == 82){
 						indexer = 0;
@@ -435,7 +469,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					else{
 						indexer = currentWaypoint+1;
 					}
-					
+					*/
 					hkVector4 position = waypoints[currentWaypoint]->wpPosition;
 
 					float angle = calculateAngleToPosition(&position);
