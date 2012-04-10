@@ -37,6 +37,7 @@ private:
 	std::string getFPSString(float milliseconds);
 	void initializeAIRacers();
 	void initializeCheckpoints();
+	void displayPostGameStatistics();
 	std::string boolToString(bool boolean);
 
 	Renderer* renderer;

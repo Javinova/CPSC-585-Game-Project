@@ -1381,8 +1381,6 @@ void Racer::applyDamage(Racer* attacker, int damage)
 			if (attacker != this)
 			{
 				attacker->kills += 1;
-				attacker->givenDamage += damage;
-				takenDamage += damage;
 				deaths += 1;
 			}
 			else
@@ -1391,6 +1389,10 @@ void Racer::applyDamage(Racer* attacker, int damage)
 				suicides += 1;
 			}
 		}
+	}
+	if(attacker != this){
+		attacker->givenDamage += damage;
+		takenDamage += damage;
 	}
 }
 

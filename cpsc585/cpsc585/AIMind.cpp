@@ -1,8 +1,9 @@
 #include "AIMind.h"
 
 
-AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers)
+AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName)
 {
+	racerName = _racerName;
 	numberOfRacers = NumberOfRacers;
 	numberOfLapsToWin = 3;
 	racer = _racer;
@@ -19,8 +20,16 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers)
 	laser = new Ability(LASER);
 	rocket = new Ability(ROCKET);
 	landmine = new Ability(LANDMINE);
+
 	knownNumberOfKills = 0;
+	knownNumberOfKills = 0;
+	knownNumberOfDeaths = 0;
+	knownNumberOfSuicides = 0;
+	knownDamageDone = 0;
+	knownDamageTaken = 0;
+
 	rotationAngle = 0;
+	finishedRace = false;
 }
 
 AIMind::~AIMind(void)
@@ -59,6 +68,7 @@ AIMind::~AIMind(void)
 void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[], AIMind* racerPlacement[]){
 	// Once the race is completed, the player is turned into an AI at which point an end of game hud would display.
 	if(currentLap == numberOfLapsToWin+1){ 
+		finishedRace = true;
 		//Possibly add a value here that means the racer has completed the race. Like raceCompleted = true;
 		if(racerType == PLAYER){
 			togglePlayerComputerAI(); 
@@ -89,6 +99,10 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	else if(racer->kills < knownNumberOfKills){
 		knownNumberOfKills = racer->kills;
 	}
+	knownNumberOfDeaths = racer->deaths;
+	knownNumberOfSuicides = racer->suicides;
+	knownDamageDone = racer->givenDamage;
+	knownDamageTaken = racer->takenDamage;
 
 	switch(racerType){
 		case PLAYER:
@@ -825,4 +839,39 @@ int AIMind::getSpeedAmmo()
 TypeOfRacer AIMind::getTypeOfRacer()
 {
 	return racerType;
+}
+
+bool AIMind::isfinishedRace()
+{
+	return finishedRace;
+}
+
+std::string AIMind::getRacerName()
+{
+	return racerName;
+}
+
+int AIMind::getKills()
+{
+	return knownNumberOfKills;
+}
+
+int AIMind::getDeaths()
+{
+	return knownNumberOfDeaths;
+}
+
+int AIMind::getSuicides()
+{
+	return knownNumberOfSuicides;
+}
+
+int AIMind::getDamageDone()
+{
+	return knownDamageDone;
+}
+
+int AIMind::getDamageTaken()
+{
+	return knownDamageTaken;
 }
