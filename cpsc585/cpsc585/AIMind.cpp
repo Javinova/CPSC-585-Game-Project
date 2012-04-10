@@ -224,14 +224,11 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				float angle = acos(B.dot3(A));
 
-				// Sign determines if it is pointing to the right or the left of the current waypoint
 				float sign = B.dot3(racer->drawable->getXhkVector());
 
 				if (racer->currentAcceleration < 0.0f)
 					sign *= -1.0f;
 
-				// The computer only turns if it is pointing away from the current waypoint by more than 20
-				// degrees in either direction.
 				if ((angle > 0.0f) && (sign > 0))
 				{
 					racer->steer(seconds, min(angle / 1.11f, 1.0f));
@@ -315,7 +312,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					landmine->updateCooldown(seconds);
 				}
 
-				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
+				//racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
 
 
 
@@ -461,6 +458,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		not change for a particular amount of time, it will reset its location
 		to its current waypoints location.
 	*/
+	// Disabled for now, for testing
+	/*
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
@@ -477,6 +476,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 			hkVector4 resetPosition;
 			resetPosition.set(cwPosition.x, cwPosition.y, cwPosition.z);
 
+			
 			racer->reset(&resetPosition, 0);
 			wayptVec(1) = 0.0f;
 			wayptVec.normalize3();
@@ -502,6 +502,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	}
 
 	overallPosition = currentWaypoint + (currentLap-1)*83; // 83 represent the number of waypoints
+	*/
 }
 
 float AIMind::calculateAngleToPosition(hkVector4* position)
