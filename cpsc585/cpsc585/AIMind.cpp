@@ -1,8 +1,9 @@
 #include "AIMind.h"
 
 
-AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType)
+AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers)
 {
+	numberOfRacers = NumberOfRacers;
 	numberOfLapsToWin = 3;
 	racer = _racer;
 	racerType = _racerType;
@@ -55,12 +56,12 @@ AIMind::~AIMind(void)
 	}
 }
 
-void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[]){
+void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[], AIMind* racerPlacement[]){
 	// Once the race is completed, the player is turned into an AI at which point an end of game hud would display.
 	if(currentLap == numberOfLapsToWin+1){ 
 		//Possibly add a value here that means the racer has completed the race. Like raceCompleted = true;
 		if(racerType == PLAYER){
-			togglePlayerComputerAI();
+			togglePlayerComputerAI(); 
 		}
 	}
 
@@ -259,15 +260,51 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					change speed.  If it is a turn point or sharp point though, it will travel at slower speeds
 					to make turns more successfully.
 				*/
+				bool rubberBanding = true; // Turn this off if multiplayer
 
-				float baseSpeed = 0.8f;
+				float baseSpeed = 0.0f;
+				if(rubberBanding){
+					int playerPlacement = 0;
+					int indexOfPlayer = 0;
+					for(int i = 0; i < numberOfRacers; i++){
+						if(racerPlacement[i]->getTypeOfRacer() == PLAYER){
+							playerPlacement = racerPlacement[i]->getPlacement();
+							indexOfPlayer = i;
+						}
+					}
+					if(placement < playerPlacement) // Slow the racers down the further ahead they are than the player
+					{
+						int distance = overallPosition - racerPlacement[indexOfPlayer]->getOverallPosition();
+						if(distance > 20){
+							baseSpeed = 0.0f;
+						}
+						else if(distance > 15){
+							baseSpeed = 0.2f;
+						}
+						else if(distance > 10){
+							baseSpeed = 0.4f;
+						}
+						else if(distance > 5){
+							baseSpeed = 0.6f;
+						}
+						else{
+							baseSpeed = 0.8f;
+						}
+					}
+					else{ // Teleport the racers that are behind closer to the player if they get too far behind
+						baseSpeed = 0.8f;
+					}
+				}
+				else{
+					baseSpeed = 0.8f;
+				}
 				hkVector4 vel = racer->body->getLinearVelocity();
 				float velocity = vel.dot3(racer->drawable->getZhkVector());
 				if(currentWaypoint+1 != 83){
-					if(waypoints[currentWaypoint+1]->getWaypointType() == TURN_POINT && velocity > 70.0f){
+					if(waypoints[currentWaypoint+1]->getWaypointType() == TURN_POINT && velocity > 60.0f){
 						baseSpeed = 0.0f;
 					}
-					if(waypoints[currentWaypoint+1]->getWaypointType() == SHARP_POINT && velocity > 45.0f){
+					if(waypoints[currentWaypoint+1]->getWaypointType() == SHARP_POINT && velocity > 35.0f){
 						baseSpeed = 0.0f;
 					}
 				}
@@ -312,7 +349,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					landmine->updateCooldown(seconds);
 				}
 
-				//racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
+				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
 
 
 
@@ -399,7 +436,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						indexer = currentWaypoint+1;
 					}
 					
-					hkVector4 position = waypoints[indexer]->wpPosition;
+					hkVector4 position = waypoints[currentWaypoint]->wpPosition;
 
 					float angle = calculateAngleToPosition(&position);
 
@@ -459,7 +496,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		to its current waypoints location.
 	*/
 	// Disabled for now, for testing
-	/*
+	
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
@@ -502,7 +539,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	}
 
 	overallPosition = currentWaypoint + (currentLap-1)*83; // 83 represent the number of waypoints
-	*/
+	
 }
 
 float AIMind::calculateAngleToPosition(hkVector4* position)
@@ -749,4 +786,9 @@ int AIMind::getLandmineAmmo()
 int AIMind::getSpeedAmmo()
 {
 	return speedBoost->getAmmoCount();
+}
+
+TypeOfRacer AIMind::getTypeOfRacer()
+{
+	return racerType;
 }

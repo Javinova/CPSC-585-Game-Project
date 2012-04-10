@@ -120,7 +120,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	player = new Racer(r->getDevice(), RACER1);
 	player->engineVoice->SetVolume(0.3f);
 	player->setPosAndRot(-80.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	playerMind = new AIMind(player, PLAYER);
+	playerMind = new AIMind(player, PLAYER, NUMRACERS);
 	racers[0] = player;
 	racerMinds[0] = playerMind;
 	
@@ -156,19 +156,19 @@ void AI::initializeAIRacers()
 {
 	ai1 = new Racer(renderer->getDevice(), RACER2);
 	ai1->setPosAndRot(-60.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	aiMind1 = new AIMind(ai1, COMPUTER);
+	aiMind1 = new AIMind(ai1, COMPUTER, NUMRACERS);
 	
 	ai2 = new Racer(renderer->getDevice(), RACER3);
 	ai2->setPosAndRot(-65.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	aiMind2 = new AIMind(ai2, COMPUTER);
+	aiMind2 = new AIMind(ai2, COMPUTER, NUMRACERS);
 
 	ai3 = new Racer(renderer->getDevice(), RACER4);
 	ai3->setPosAndRot(-75.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	aiMind3 = new AIMind(ai3, COMPUTER);
+	aiMind3 = new AIMind(ai3, COMPUTER, NUMRACERS);
 
 	ai4 = new Racer(renderer->getDevice(), RACER5);
 	ai4->setPosAndRot(-85.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	aiMind4 = new AIMind(ai4, COMPUTER);
+	aiMind4 = new AIMind(ai4, COMPUTER, NUMRACERS);
 
 	racers[1] = ai1;
 	racers[2] = ai2;
@@ -267,7 +267,7 @@ void AI::simulate(float seconds)
 	
 
 	for(int i = 0; i < NUMRACERS; i++){
-		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, prevCheckpoints, racers);
+		racerMinds[i]->update(hud, intention, seconds, waypoints, checkpoints, prevCheckpoints, racers, racerPlacement);
 	}
 	
 	updateRacerPlacement(0, NUMRACERS - 1);

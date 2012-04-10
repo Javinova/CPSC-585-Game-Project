@@ -16,9 +16,9 @@ enum TypeOfRacer { PLAYER, COMPUTER };
 class AIMind
 {
 public:
-	AIMind(Racer* racer, TypeOfRacer _racerType);
+	AIMind(Racer* racer, TypeOfRacer _racerType, int NumberOfRacers);
 	~AIMind(void);
-	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[]);
+	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[], AIMind* racerPlacement[]);
 	void togglePlayerComputerAI();
 	void setPlacement(int place);
 	int getPlacement();
@@ -35,6 +35,7 @@ public:
 	int getLandmineAmmo();
 	float getRotationAngle();
 	hkVector4 getRacerPosition();
+	TypeOfRacer getTypeOfRacer();
 
 private:
 	void updateWaypointsAndLap(float seconds, Waypoint* waypoints[]);
@@ -66,6 +67,7 @@ private:
 	int placement;
 	int knownNumberOfKills;
 	int numberOfLapsToWin;
+	int numberOfRacers;
 
 	float rotationAngle;
 };

@@ -35,7 +35,6 @@ public:
 
 private:
 	std::string getFPSString(float milliseconds);
-	void initializeWaypoints();
 	void initializeAIRacers();
 	void initializeCheckpoints();
 	std::string boolToString(bool boolean);
