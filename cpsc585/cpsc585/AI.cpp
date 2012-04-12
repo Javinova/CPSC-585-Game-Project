@@ -118,7 +118,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	
 	//Initialize player
 	player = new Racer(r->getDevice(), RACER1);
-	player->engineVoice->SetVolume(0.3f);
+	player->engineVoice->SetVolume(0.5f);
 	player->setPosAndRot(35.0f, 5.0f, -298.0f, 0.0f, 1.4f, 0.0f);
 	playerMind = new AIMind(player, PLAYER, NUMRACERS, "Herald");
 	racers[0] = player;
@@ -160,6 +160,8 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	// This is how you set an object for the camera to focus on!
 	renderer->setFocus(racers[racerIndex]->getIndex());
 
+	// Start playing music
+	Sound::sound->playInGameMusic();
 }
 
 void AI::initializeAIRacers()
