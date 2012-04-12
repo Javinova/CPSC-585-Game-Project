@@ -140,6 +140,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	//Initialize Waypoints
 	wpEditor->loadWaypoints(waypoints, "RaceTrack.txt"); 
 	
+	// Initializing racer's look direction at game start.
 	D3DXVECTOR3 target = waypoints[0]->drawable->getPosition();
 	hkVector4 targetPos = hkVector4(target.x, target.y, target.z);
 	hkVector4 shooterPos = player->body->getPosition();
