@@ -119,7 +119,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	//Initialize player
 	player = new Racer(r->getDevice(), RACER1);
 	player->engineVoice->SetVolume(0.3f);
-	player->setPosAndRot(-80.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	player->setPosAndRot(35.0f, 5.0f, -298.0f, 0.0f, 1.4f, 0.0f);
 	playerMind = new AIMind(player, PLAYER, NUMRACERS, "Herald");
 	racers[0] = player;
 	racerMinds[0] = playerMind;
@@ -139,7 +139,16 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 
 	//Initialize Waypoints
 	wpEditor->loadWaypoints(waypoints, "RaceTrack.txt"); 
+	
+	D3DXVECTOR3 target = waypoints[0]->drawable->getPosition();
+	hkVector4 targetPos = hkVector4(target.x, target.y, target.z);
+	hkVector4 shooterPos = player->body->getPosition();
+	shooterPos(1) += 2.0f;
+	targetPos.sub(shooterPos);
+	targetPos.normalize3();
 
+	player->lookDir.setXYZ(targetPos);
+	
 	//Initialize Checkpoints & Finish Lines
 	initializeCheckpoints();
 
@@ -155,19 +164,19 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 void AI::initializeAIRacers()
 {
 	ai1 = new Racer(renderer->getDevice(), RACER2);
-	ai1->setPosAndRot(-60.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	ai1->setPosAndRot(40.0f, 5.0f, -294.0f, 0.0f, 1.4f, 0.0f);
 	aiMind1 = new AIMind(ai1, COMPUTER, NUMRACERS, "Gerard");
 	
 	ai2 = new Racer(renderer->getDevice(), RACER3);
-	ai2->setPosAndRot(-65.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	ai2->setPosAndRot(40.0f, 5.0f, -298.0f, 0.0f, 1.4f, 0.0f);
 	aiMind2 = new AIMind(ai2, COMPUTER, NUMRACERS, "Nevvel");
 
 	ai3 = new Racer(renderer->getDevice(), RACER4);
-	ai3->setPosAndRot(-75.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	ai3->setPosAndRot(40.0f, 5.0f, -302.0f, 0.0f, 1.4f, 0.0f);
 	aiMind3 = new AIMind(ai3, COMPUTER, NUMRACERS, "Rosey");
 
 	ai4 = new Racer(renderer->getDevice(), RACER5);
-	ai4->setPosAndRot(-85.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	ai4->setPosAndRot(40.0f, 5.0f, -306.0f, 0.0f, 1.4f, 0.0f);
 	aiMind4 = new AIMind(ai4, COMPUTER, NUMRACERS, "Delilah");
 
 	racers[1] = ai1;

@@ -13,7 +13,7 @@ Ability::Ability(AbilityType _abilityType)
 		lengthOfCooldown = 3; // Time until boost can be used again
 		boostValue = 0.5f; // Additional speed that the boost provides
 		boostDuration = 3; // Time in seconds that the boost lasts
-		ammoCount = 10;
+		ammoCount = 0;
 		break;
 	case LASER:
 		lengthOfCooldown = 2.0f; // Time until laser can be used again
