@@ -141,6 +141,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	playerMind = new AIMind(player, PLAYER, NUMRACERS, "Herald");
 	racers[0] = player;
 	racerMinds[0] = playerMind;
+	sound->playerEmitter = player->emitter;
 	
 
 	//Initialize world

@@ -168,8 +168,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 				hud->setSpeed(velocity);
 				hud->setHealth(racer->health);
-				hud->setCheckpointTime(checkPointTime);
-				hud->setLap(placement);
+				hud->setPosition(placement);
+				hud->setLap(currentLap, numberOfLapsToWin);
 
 				racer->computeRPM();
 
@@ -384,7 +384,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					speedBoost->updateCooldown(seconds);
 				}
 
-				hkSimdReal distanceToWaypoint = (racer->body->getPosition()).distanceTo(waypoints[currentWaypoint]->wpPosition);
+				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
 				if(!landmine->onCooldown() && landmine->getAmmoCount() > 0)
 					{
 						landmine->startCooldownTimer();
@@ -543,7 +543,6 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		not change for a particular amount of time, it will reset its location
 		to its current waypoints location.
 	*/
-	// Disabled for now, for testing
 	
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);

@@ -1,6 +1,7 @@
 #pragma once
 #include "Intention.h"
 #include "Drawable.h"
+#include "Sound.h"
 
 enum AbilityType { LASER, SPEED, LANDMINE, ROCKET };
 
@@ -17,13 +18,13 @@ public:
 	void shutdown();
 	void setSpeed(float speed);
 	void setHealth(int health);
-	void setCheckpointTime(int time);
-	void setLap(int lap);
+	void setPosition(int placement);
+	void setLap(int lap, int numToWin);
 
 private:
 	void showRadial(bool enabled);
 	void drawHealth();
-	void drawCheckpointTime();
+	void drawPosition();
 	void drawLap();
 
 	AbilityType selectedAbility;
@@ -33,6 +34,9 @@ private:
 	IDirect3DTexture9* speedoTexture;
 	IDirect3DTexture9* needleTexture;
 	IDirect3DTexture9* numbersTexture;
+	IDirect3DTexture9* healthBarTexture;
+	IDirect3DTexture9* healthBarBorderTexture;
+	IDirect3DTexture9* lapPositionsTexture;
 
 	RECT* laserRect;
 	RECT* speedRect;
@@ -51,8 +55,9 @@ private:
 
 	float currentSpeed;
 	int currentHealth;
-	int currentCheckpointTime;
+	int position;
 	int currentLap;
+	int numLapsToWin;
 
 	int screenWidth, screenHeight;
 };
