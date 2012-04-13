@@ -18,7 +18,7 @@
 #include "CheckpointTimer.h"
 #include "DynamicObjManager.h"
 
-#define NUMRACERS 5
+#define NUMRACERS 8
 #define NUMWAYPOINTS 83
 #define NUMCHECKPOINTS 4
 
@@ -68,6 +68,9 @@ private:
 	Racer* ai2;
 	Racer* ai3;
 	Racer* ai4;
+	Racer* ai5;
+	Racer* ai6;
+	Racer* ai7;
 
 	// Racer Minds
 	AIMind* racerMinds[NUMRACERS];
@@ -76,6 +79,9 @@ private:
 	AIMind* aiMind2;
 	AIMind* aiMind3;
 	AIMind* aiMind4;
+	AIMind* aiMind5;
+	AIMind* aiMind6;
+	AIMind* aiMind7;
 
 	AIMind* racerPlacement[NUMRACERS];
 
