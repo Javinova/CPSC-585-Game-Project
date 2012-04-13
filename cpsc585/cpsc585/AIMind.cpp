@@ -543,7 +543,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		not change for a particular amount of time, it will reset its location
 		to its current waypoints location.
 	*/
-	
+	/*
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
@@ -584,7 +584,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		}
 		oldTime = newTime;
 	}
-
+	*/
 	overallPosition = currentWaypoint + (currentLap-1)*83; // 83 represent the number of waypoints
 	
 }
