@@ -67,6 +67,8 @@ private:
 	time_t oldTime;
 	time_t newTime;
 	float spawnTime;
+	float timeToNextTeleport;
+	float timeSinceTeleport;
 
 	hkVector4 lastPosition;
 
@@ -81,16 +83,14 @@ private:
 	int placement;
 	int numberOfRacers;
 
+	int knownNumberOfKills;
 	int knownNumberOfDeaths;
 	int knownNumberOfSuicides;
 	int knownDamageDone;
 	int knownDamageTaken;
 
 	bool finishedRace;
-	int knownDamageDone;
-	int knownDamageTaken;
-
-	bool finishedRace;
+	bool teleportedRecently;
 
 	float rotationAngle;
 };

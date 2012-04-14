@@ -182,7 +182,7 @@ void AI::initialize(Renderer* r, Input* i, Sound* s)
 	player->lookDir.setXYZ(targetPos);
 	
 	//Initialize Checkpoints & Finish Lines
-	initializeCheckpoints();
+	//initializeCheckpoints();
 
 	//Initialize HUD
 	hud = renderer->getHUD();

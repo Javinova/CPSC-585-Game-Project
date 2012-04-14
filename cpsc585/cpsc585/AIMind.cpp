@@ -6,6 +6,9 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::s
 	racerName = _racerName;
 	numberOfRacers = NumberOfRacers;
 	numberOfLapsToWin = 3;
+	timeToNextTeleport = 0;
+	timeSinceTeleport = 0;
+	teleportedRecently = false;
 	racer = _racer;
 	racerType = _racerType;
 	newTime = 0;
@@ -310,9 +313,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 						baseSpeed = 0.8f;
 						int distance = racerPlacement[indexOfPlayer]->getOverallPosition() - overallPosition;
-						if(distance > 5) // If the racer is behind more than 10 waypoints of the racer, will teleport them closer.
+						srand((unsigned)time(0));
+						int random_integer = (rand()+knownDamageDone)%100;
+						int waypoint_offset = rand()%3;
+						timeToNextTeleport += seconds;
+						// If the racer is behind more than X waypoints of the racer, will teleport them closer
+						// as long as they roll between 0 and 30 and so long as they haven't teleported in the last 5 seconds
+						if(distance > 6 && random_integer <= 30 && timeToNextTeleport > 5) 
 						{
-							int newCurrent = racerPlacement[indexOfPlayer]->getCurrentWaypoint()-2;
+							teleportedRecently = true;
+							timeToNextTeleport = 0;
+							int newCurrent = racerPlacement[indexOfPlayer]->getCurrentWaypoint()-(2+waypoint_offset);
 							if(newCurrent >= 0){
 								int previousWaypoint = currentWaypoint;
 								currentWaypoint = newCurrent;
@@ -358,10 +369,6 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 
 
-				/* 
-					Currently, the AI only uses a speedboost if it is at waypoint 35 (the middle of the
-					ramp on the racetrack), and is traveling too slow to make the jump.
-				*/
 				int previousWaypoint = 0;
 				if(currentWaypoint - 1 == -1){
 					previousWaypoint = 82;
@@ -371,7 +378,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 				if(!speedBoost->onCooldown() && 
 					(waypoints[previousWaypoint]->getWaypointType() == TURN_POINT || waypoints[previousWaypoint]->getWaypointType() == SHARP_POINT)
-					&& waypoints[currentWaypoint]->getWaypointType() == CHECK_POINT
+					&& waypoints[currentWaypoint]->getWaypointType() == WAY_POINT
 					&& speedBoost->getAmmoCount() > 0){
 					speedBoost->startCooldownTimer();
 					speedBoost->decreaseAmmoCount();
@@ -396,19 +403,18 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					landmine->updateCooldown(seconds);
 				}
 
-				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
-				if(!landmine->onCooldown() && landmine->getAmmoCount() > 0)
-					{
-						landmine->startCooldownTimer();
-						landmine->decreaseAmmoCount();
-						racer->dropMine();
-					}
-
-				if(landmine->onCooldown()){
-					landmine->updateCooldown(seconds);
+				float extraSpeed = 0.0f;
+				if(teleportedRecently){
+					timeSinceTeleport += seconds;
+					extraSpeed = 0.5f;
 				}
 
-				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
+				if(timeSinceTeleport > 5){ // Determines the duration of the extra acceleration boost the ai gets after teleporting
+					timeSinceTeleport = 0;
+					teleportedRecently = false;
+				}
+
+				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue() + extraSpeed);
 
 
 
@@ -601,6 +607,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	else{
 		spawnTime = 0.0f;
 	}
+	/*
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
@@ -641,6 +648,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		}
 		oldTime = newTime;
 	}
+	*/
 	
 	overallPosition = currentWaypoint + (currentLap-1)*83; // 83 represent the number of waypoints
 	
