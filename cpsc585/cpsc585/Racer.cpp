@@ -104,7 +104,7 @@ Racer::Racer(IDirect3DDevice9* device, RacerType racerType)
 	info.m_restitution = 0.0f;
 	info.m_maxAngularVelocity = 10.0f;
 	info.m_maxLinearVelocity = 170.0f;
-	info.m_angularDamping = 0.3f;
+	info.m_angularDamping = 0.4f;
 	hkpMassProperties massProperties;
 	hkpInertiaTensorComputer::computeBoxVolumeMassProperties(halfExtent, chassisMass, massProperties);
 	info.setMassProperties(massProperties);
@@ -1182,7 +1182,7 @@ void Racer::fireLaser()
 {
 	laserTime = 1.0f;
 
-	Sound::sound->playLaser(emitter);
+	Sound::sound->playSoundEffect(SFX_LASER, emitter);
 
 	hkpWorldRayCastInput input;
 	hkpWorldRayCastOutput output = hkpWorldRayCastOutput();
@@ -1307,7 +1307,7 @@ hkpWorldRayCastInput Racer::fireWeapon()
 
 void Racer::fireRocket()
 {
-	Sound::sound->playRocketLaunch(emitter);
+	Sound::sound->playSoundEffect(SFX_ROCKETLAUNCH, emitter);
 
 	hkpWorldRayCastInput input;
 	hkpWorldRayCastOutput output = hkpWorldRayCastOutput();
@@ -1352,7 +1352,7 @@ void Racer::fireRocket()
 
 void Racer::dropMine()
 {
-	Sound::sound->playDropMine(emitter);
+	Sound::sound->playSoundEffect(SFX_DROPMINE, emitter);
 
 	Landmine* currentMine = new Landmine(Renderer::device);
 					
@@ -1387,12 +1387,12 @@ void Racer::respawn()
 void Racer::applyDamage(Racer* attacker, int damage)
 {
 	health -= damage;
-	Sound::sound->playCrash(emitter);
+	Sound::sound->playSoundEffect(SFX_CRASH, emitter);
 
 	if (health <= 0)
 	{
-		Sound::sound->playScream(emitter);
-		Sound::sound->playCarExplode(emitter);
+		Sound::sound->playSoundEffect(SFX_SCREAM, emitter);
+		Sound::sound->playSoundEffect(SFX_CAREXPLODE, emitter);
 
 		health = 100;
 		//respawn();

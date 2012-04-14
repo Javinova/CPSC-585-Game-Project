@@ -416,7 +416,7 @@ void AI::simulate(float seconds)
 		if (raceStartTimer <= 0.0f)
 		{
 			// Show "GO" on screen, play sound
-			Sound::sound->playShotgun(Sound::sound->playerEmitter);
+			Sound::sound->playSoundEffect(SFX_SHOTGUN, Sound::sound->playerEmitter);
 
 			raceStartTimer = -0.1f;
 			raceStarted = true;
@@ -427,7 +427,7 @@ void AI::simulate(float seconds)
 			if (!playedOne)
 			{
 				// Play "One" sound
-				Sound::sound->playOne(Sound::sound->playerEmitter);
+				Sound::sound->playSoundEffect(SFX_ONE, Sound::sound->playerEmitter);
 				playedOne = true;
 
 				// Start playing music
@@ -445,7 +445,7 @@ void AI::simulate(float seconds)
 			if (!playedTwo)
 			{
 				// Play "Two" sound
-				Sound::sound->playTwo(Sound::sound->playerEmitter);
+				Sound::sound->playSoundEffect(SFX_TWO, Sound::sound->playerEmitter);
 				playedTwo = true;
 			}
 
@@ -460,7 +460,7 @@ void AI::simulate(float seconds)
 			if (!playedThree)
 			{
 				// Play "Three" sound
-				Sound::sound->playThree(Sound::sound->playerEmitter);
+				Sound::sound->playSoundEffect(SFX_THREE, Sound::sound->playerEmitter);
 				playedThree = true;
 			}
 

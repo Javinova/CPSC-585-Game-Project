@@ -92,6 +92,8 @@ private:
 	bool finishedRace;
 	bool teleportedRecently;
 
+	bool playedNoAmmoSound;
+
 	float rotationAngle;
 };
 
