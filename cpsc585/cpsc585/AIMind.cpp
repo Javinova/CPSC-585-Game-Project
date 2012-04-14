@@ -8,7 +8,8 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::s
 	numberOfLapsToWin = 3;
 	racer = _racer;
 	racerType = _racerType;
-	newTime = NULL;
+	newTime = 0;
+	spawnTime = 0.0f;
 	oldTime = time(NULL);
 	lastPosition = racer->body->getPosition();
 	currentWaypoint = 0;
@@ -22,11 +23,11 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::s
 	landmine = new Ability(LANDMINE);
 
 	knownNumberOfKills = 0;
-	knownNumberOfKills = 0;
 	knownNumberOfDeaths = 0;
 	knownNumberOfSuicides = 0;
 	knownDamageDone = 0;
 	knownDamageTaken = 0;
+
 
 	rotationAngle = 0;
 	finishedRace = false;
@@ -65,7 +66,7 @@ AIMind::~AIMind(void)
 	}
 }
 
-void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[], AIMind* racerPlacement[]){
+void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Racer* racers[], AIMind* racerPlacement[], Waypoint* buildingWaypoint){
 	// Once the race is completed, the player is turned into an AI at which point an end of game hud would display.
 	if(currentLap == numberOfLapsToWin+1){ 
 		finishedRace = true;
@@ -75,9 +76,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		}
 	}
 
-	checkPointTime = checkPointTimer->update(checkpoints, prevCheckpoints);
+	//checkPointTime = checkPointTimer->update(checkpoints, prevCheckpoints);
 
-	updateWaypointsAndLap(seconds, waypoints);
+	updateWaypointsAndLap(seconds, waypoints, buildingWaypoint);
 
 	/*
 	if(checkPointTimer->downgradeAbility()){
@@ -289,16 +290,16 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					if(placement < playerPlacement) // Slow the racers down the further ahead they are than the player
 					{
 						int distance = overallPosition - racerPlacement[indexOfPlayer]->getOverallPosition();
-						if(distance > 20){
+						if(distance > 8){
 							baseSpeed = 0.0f;
 						}
-						else if(distance > 15){
+						else if(distance > 6){
 							baseSpeed = 0.2f;
 						}
-						else if(distance > 10){
+						else if(distance > 4){
 							baseSpeed = 0.4f;
 						}
-						else if(distance > 5){
+						else if(distance > 2){
 							baseSpeed = 0.6f;
 						}
 						else{
@@ -384,6 +385,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					speedBoost->updateCooldown(seconds);
 				}
 
+				if(!landmine->onCooldown() && landmine->getAmmoCount() > 0)
+					{
+						landmine->startCooldownTimer();
+						landmine->decreaseAmmoCount();
+						racer->dropMine();
+					}
+
+				if(landmine->onCooldown()){
+					landmine->updateCooldown(seconds);
+				}
+
 				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
 				if(!landmine->onCooldown() && landmine->getAmmoCount() > 0)
 					{
@@ -397,6 +409,10 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 				}
 
 				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue());
+
+
+
+
 
 
 
@@ -543,7 +559,48 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		not change for a particular amount of time, it will reset its location
 		to its current waypoints location.
 	*/
-	
+	hkVector4 upVec = racer->drawable->getYhkVector();
+	hkVector4 actualUp = hkVector4(0,1,0);
+	//actualUp.normalize3();	// Don't need to normalize, as (0,1,0) is already normalized
+	//upVec.normalize3();	// Already normalized
+	spawnTime += seconds;
+	//int timeDiff = (int)difftime(newTime, oldTime);
+	if(upVec.dot3(actualUp).isLess(0.1f) || (racer->body->getPosition()(1) < 5.0f)){
+		if(spawnTime > 2.0f){
+		D3DXVECTOR3 cwPosition = waypoints[currentWaypoint]->drawable->getPosition();
+			D3DXVECTOR3 nextPosition = waypoints[currentWaypoint+1]->drawable->getPosition();
+			hkVector4 wayptVec;
+			wayptVec.set(nextPosition.x, nextPosition.y, nextPosition.z);
+
+			wayptVec.sub(hkVector4(cwPosition.x, cwPosition.y, cwPosition.z));
+
+			hkVector4 resetPosition;
+			resetPosition.set(cwPosition.x, cwPosition.y, cwPosition.z);
+
+			
+			racer->reset(&resetPosition, 0);
+			wayptVec(1) = 0.0f;
+			wayptVec.normalize3();
+ 
+			hkVector4 z = racer->drawable->getZhkVector();
+			hkVector4 x = racer->drawable->getXhkVector();
+ 
+			float angle = hkMath::acos(z.dot3(wayptVec)); // angle is between 0 and 183
+			
+			// if the vector is on the LEFT side of the car...
+			if (x.dot3(wayptVec) < 0.0f)
+				angle *= -1.0f;
+ 
+			rotationAngle = angle;
+ 
+			racer->reset(&resetPosition, angle);
+			calculateAngleToPosition(&(hkVector4(nextPosition.x, nextPosition.y, nextPosition.z)));
+			spawnTime = 0.0f;
+		}
+	}
+	else{
+		spawnTime = 0.0f;
+	}
 	hkVector4 currentPosition = racer->body->getPosition();
 	int distanceTo = (int)currentPosition.distanceTo(lastPosition);
 	newTime = time(NULL);
@@ -613,7 +670,7 @@ int AIMind::getCheckpointTime()
 }
 
 // When an AI reaches its waypoint, it will update its goal to the next waypoint
-void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[])
+void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[], Waypoint* buildingWaypoint)
 {
 	int prevWaypoint;
 	if(currentWaypoint - 1 == -1){
@@ -643,6 +700,11 @@ void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[])
 			currentWaypoint += 1;
 		}
 	}
+
+	hkSimdReal distanceToBuilding = buildingWaypoint->wpPosition.distanceTo(getRacerPosition());
+	if(distanceToBuilding.isLess(30)){
+		currentWaypoint = 25;
+	}
 }
 
 // Switches between whether the racer is being controlled by a player or computer
@@ -662,12 +724,32 @@ void AIMind::acquireAmmo()
 	int random_integer = rand()%100;
 	if(random_integer > 66){
 		landmine->increaseAmmoCount();
+
+		if (racerType == PLAYER)
+		{
+			// Show LANDMINE icon on screen
+		}
 	}
 	else if(random_integer > 33){
 		speedBoost->increaseAmmoCount();
+
+		if (racerType == PLAYER)
+		{
+			// Show SPEED icon on screen
+		}
 	}
-	else if(random_integer > 0){
+	else if(random_integer >= 0){
 		rocket->increaseAmmoCount();
+
+		if (racerType == PLAYER)
+		{
+			// Show ROCKET icon on screen
+		}
+	}
+
+	if (racerType == PLAYER)
+	{
+		Sound::sound->playPickup(racer->emitter);
 	}
 }
 
@@ -786,6 +868,18 @@ int AIMind::getOverallPosition()
 // Sets the number representation of what place a racer is in (like 1st place, 2nd place, etc)
 void AIMind::setPlacement(int place)
 {
+	if (racerType == PLAYER)
+	{
+		if ((placement >= 2) && (place == 1))
+		{
+			Sound::sound->playTakenLead(Sound::sound->playerEmitter);
+		}
+		else if ((placement == 1) && (place >= 2))
+		{
+			Sound::sound->playLostLead(Sound::sound->playerEmitter);
+		}
+	}
+
 	placement = place;
 }
 

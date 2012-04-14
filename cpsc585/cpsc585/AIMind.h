@@ -18,7 +18,7 @@ class AIMind
 public:
 	AIMind(Racer* racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName);
 	~AIMind(void);
-	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Waypoint* checkpoints[], Waypoint* prevCheckpoints[], Racer* racers[], AIMind* racerPlacement[]);
+	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Racer* racers[], AIMind* racerPlacement[], Waypoint* buildingWaypoint);
 	void togglePlayerComputerAI();
 	void setPlacement(int place);
 	int getPlacement();
@@ -46,8 +46,10 @@ public:
 	bool isfinishedRace();
 	std::string getRacerName();
 
+	int numberOfLapsToWin;
+
 private:
-	void updateWaypointsAndLap(float seconds, Waypoint* waypoints[]);
+	void updateWaypointsAndLap(float seconds, Waypoint* waypoints[], Waypoint* buildingWaypoint);
 	void acquireAmmo();
 	void upgrade();
 	void downgrade();
@@ -64,6 +66,7 @@ private:
 
 	time_t oldTime;
 	time_t newTime;
+	float spawnTime;
 
 	hkVector4 lastPosition;
 
@@ -76,12 +79,14 @@ private:
 	int overallPosition;
 	int currentLap;
 	int placement;
-	int numberOfLapsToWin;
 	int numberOfRacers;
 
-	int knownNumberOfKills;
 	int knownNumberOfDeaths;
 	int knownNumberOfSuicides;
+	int knownDamageDone;
+	int knownDamageTaken;
+
+	bool finishedRace;
 	int knownDamageDone;
 	int knownDamageTaken;
 
