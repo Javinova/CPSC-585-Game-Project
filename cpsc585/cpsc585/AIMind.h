@@ -95,5 +95,9 @@ private:
 	bool playedNoAmmoSound;
 
 	float rotationAngle;
+
+	float showAmmoTimer;
+
+	HUD* playerHUD;
 };
 

@@ -35,6 +35,10 @@ AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::s
 	rotationAngle = 0;
 	finishedRace = false;
 	playedNoAmmoSound = false;
+
+	showAmmoTimer = 0.0f;
+
+	playerHUD = NULL;
 }
 
 AIMind::~AIMind(void)
@@ -112,6 +116,19 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 	switch(racerType){
 		case PLAYER:
 			{
+				playerHUD = hud;
+
+				if (showAmmoTimer > 0.0f)
+					showAmmoTimer -= seconds;
+				else
+					showAmmoTimer = 0.0f;
+
+				if (showAmmoTimer == 0.0f)
+				{
+					hud->showAmmo = false;
+				}
+
+
 				// Update camera
 				if (!intention.lbumpPressed)
 				{
@@ -199,6 +216,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 							hkVector4 impulse = racer->drawable->getZhkVector();
 							impulse.mul(150.0f*racer->chassisMass*speedBoost->getBoostValue());
 							racer->body->applyLinearImpulse(impulse);
+
+							hud->speedAmmo--;
 						}
 						else if (!playedNoAmmoSound)
 						{
@@ -227,6 +246,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 							rocket->startCooldownTimer();
 							rocket->decreaseAmmoCount();
 							racer->fireRocket();
+
+							hud->rocketAmmo--;
 						}
 						else if (!playedNoAmmoSound)
 						{
@@ -249,6 +270,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 							landmine->startCooldownTimer();
 							landmine->decreaseAmmoCount();
 							racer->dropMine();
+
+							hud->landmineAmmo--;
 						}
 						else if (!playedNoAmmoSound)
 						{
@@ -788,6 +811,11 @@ void AIMind::acquireAmmo()
 		if (racerType == PLAYER)
 		{
 			// Show LANDMINE icon on screen
+			playerHUD->showAmmo = true;
+			playerHUD->ammoIconType = LANDMINE;
+			showAmmoTimer = 2.0f;
+
+			playerHUD->landmineAmmo++;
 		}
 	}
 	else if(random_integer > 33){
@@ -796,6 +824,11 @@ void AIMind::acquireAmmo()
 		if (racerType == PLAYER)
 		{
 			// Show SPEED icon on screen
+			playerHUD->showAmmo = true;
+			playerHUD->ammoIconType = SPEED;
+			showAmmoTimer = 2.0f;
+
+			playerHUD->speedAmmo++;
 		}
 	}
 	else if(random_integer >= 0){
@@ -804,6 +837,11 @@ void AIMind::acquireAmmo()
 		if (racerType == PLAYER)
 		{
 			// Show ROCKET icon on screen
+			playerHUD->showAmmo = true;
+			playerHUD->ammoIconType = ROCKET;
+			showAmmoTimer = 2.0f;
+
+			playerHUD->rocketAmmo++;
 		}
 	}
 
