@@ -2,7 +2,7 @@
 
 Renderer* Renderer::renderer = NULL;
 IDirect3DDevice9* Renderer::device = NULL;
-D3DXVECTOR3 Renderer::lightDir = D3DXVECTOR3(0,-0.7f,-1);
+D3DXVECTOR3 Renderer::lightDir = D3DXVECTOR3(0,-0.4f,-1);
 
 Renderer::Renderer()
 {
@@ -295,7 +295,7 @@ void Renderer::render()
 	for (int i = 0; i < currentDrawable; i++)
 	{
 		if ((drawables[i]->meshType == RACER) || (drawables[i]->meshType == REARWHEEL)
-			|| (drawables[i]->meshType == FRONTWHEEL))
+			|| (drawables[i]->meshType == FRONTWHEEL) || (drawables[i]->meshType == GUNMOUNTMESH))
 		{
 			drawables[i]->buildShadowVolume(lightDir);
 		}
@@ -359,8 +359,8 @@ void Renderer::render()
 
 	// Render SmokeSystem particles
 	device->SetTransform(D3DTS_WORLD, &worldMatrix);
-	smokeSystem->render(ROCKET_SMOKE);
 	smokeSystem->render(EXPLOSION_SMOKE);
+	smokeSystem->render(ROCKET_SMOKE);
 
 	// Render LaserSystem particles (beginning and end points of shots)
 
@@ -510,7 +510,7 @@ void Renderer::drawShadows()
 		for (int i = 0; i < currentDrawable; i++)
 		{
 			if ((drawables[i]->meshType == RACER) || (drawables[i]->meshType == REARWHEEL)
-				|| (drawables[i]->meshType == FRONTWHEEL))
+				|| (drawables[i]->meshType == FRONTWHEEL) || (drawables[i]->meshType == GUNMOUNTMESH))
 			{
 				drawables[i]->renderShadowVolume(device);
 			}
@@ -524,7 +524,7 @@ void Renderer::drawShadows()
 		for (int i = 0; i < currentDrawable; i++)
 		{
 			if ((drawables[i]->meshType == RACER) || (drawables[i]->meshType == REARWHEEL)
-				|| (drawables[i]->meshType == FRONTWHEEL))
+				|| (drawables[i]->meshType == FRONTWHEEL) || (drawables[i]->meshType == GUNMOUNTMESH))
 			{
 				drawables[i]->renderShadowVolume(device);
 			}
@@ -540,7 +540,7 @@ void Renderer::drawShadows()
 		for (int i = 0; i < currentDrawable; i++)
 		{
 			if ((drawables[i]->meshType == RACER) || (drawables[i]->meshType == REARWHEEL)
-				|| (drawables[i]->meshType == FRONTWHEEL))
+				|| (drawables[i]->meshType == FRONTWHEEL) || (drawables[i]->meshType == GUNMOUNTMESH))
 			{
 				drawables[i]->renderShadowVolume(device);
 			}
