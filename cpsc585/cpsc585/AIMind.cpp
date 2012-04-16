@@ -80,7 +80,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 		finishedRace = true;
 		//Possibly add a value here that means the racer has completed the race. Like raceCompleted = true;
 		if(racerType == PLAYER){
-			togglePlayerComputerAI(); 
+			togglePlayerComputerAI(waypoints); 
 		}
 	}
 
@@ -561,7 +561,15 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					
 				}
 				else if(avoidanceEngaged){
-					racer->steer(seconds, 1.0f);
+					srand((unsigned) time(0)); // Randomizes whether the racer avoids to the left or right
+					int sign = rand();
+					if(sign%2 == 0){
+						sign = -1;
+					}
+					else{
+						sign = 1;
+					}
+					racer->steer(seconds, 1.0f*sign);
 				}
 				else{
 					hkVector4 vel = racer->body->getLinearVelocity();
@@ -762,10 +770,18 @@ void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[], Waypoin
 }
 
 // Switches between whether the racer is being controlled by a player or computer
-void AIMind::togglePlayerComputerAI()
+void AIMind::togglePlayerComputerAI(Waypoint* waypoints[])
 {
 	if(racerType == COMPUTER){
 		racerType = PLAYER;
+		D3DXVECTOR3 target = waypoints[currentWaypoint]->drawable->getPosition();
+		hkVector4 targetPos = hkVector4(target.x, target.y, target.z);
+		hkVector4 shooterPos = racer->body->getPosition();
+		shooterPos(1) += 2.0f;
+		targetPos.sub(shooterPos);
+		targetPos.normalize3();
+
+		racer->lookDir.setXYZ(targetPos);
 	}
 	else{
 		racerType = COMPUTER;

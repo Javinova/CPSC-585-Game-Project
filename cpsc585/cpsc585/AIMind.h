@@ -19,7 +19,7 @@ public:
 	AIMind(Racer* racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName);
 	~AIMind(void);
 	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Racer* racers[], AIMind* racerPlacement[], Waypoint* buildingWaypoint);
-	void togglePlayerComputerAI();
+	void togglePlayerComputerAI(Waypoint* waypoints[]);
 	void setPlacement(int place);
 	int getPlacement();
 	int getCheckpointTime();
