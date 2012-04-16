@@ -626,8 +626,8 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 
 
 				// This makes it so the AI's weapons aren't looking the right way
-				
-			/*	hkVector4 racerPos = racer->body->getPosition();
+				/*
+				hkVector4 racerPos = racer->body->getPosition();
 				hkSimdReal camX = racerPos.getComponent(0);
 				hkSimdReal camY = racerPos.getComponent(1);
 				hkSimdReal camZ = racerPos.getComponent(2);
@@ -758,7 +758,7 @@ void AIMind::updateWaypointsAndLap(float seconds, Waypoint* waypoints[], Waypoin
 		}
 	}
 	if(waypoints[currentWaypoint]->passedWaypoint(currentPos, prevPos, &racer->body->getPosition())
-		|| (distanceOfRacer.isLess(15) && waypoints[currentWaypoint]->getWaypointType() != LAP_POINT)){
+		|| (distanceOfRacer.isLess(22) && waypoints[currentWaypoint]->getWaypointType() != LAP_POINT)){
 		if(currentWaypoint == 82){
 			currentWaypoint = 0;
 		}

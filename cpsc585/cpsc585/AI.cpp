@@ -291,15 +291,8 @@ void AI::simulate(float seconds)
 	if(playerMind->isfinishedRace())
 	{
 		displayPostGameStatistics();
+		raceEnded = true;
 	}
-
-
-	if(playerMind->isfinishedRace())
-	{
-		displayPostGameStatistics();
-	}
-
-
 
 
 	// ---------- UPDATE SOUND WITH CURRENT CAMERA POSITION/ORIENTATION --------------- //
@@ -399,9 +392,9 @@ void AI::simulate(float seconds)
 		hud->setPosition(racerPlacement[racerIndex]->getPlacement());
 		hud->setLap(1, racerMinds[racerIndex]->numberOfLapsToWin);
 
-
 		hkVector4 look = racers[racerIndex]->lookDir;
 		(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
+		
 
 		for (int i = 0; i < NUMRACERS; i++)
 		{
@@ -488,6 +481,8 @@ void AI::simulate(float seconds)
 	for(int i = 0; i < NUMRACERS; i++){
 		racerMinds[i]->update(hud, intention, seconds, waypoints, racers, racerPlacement, buildingWaypoint);
 	}
+
+
 	
 	updateRacerPlacement(0, NUMRACERS - 1);
 
@@ -537,7 +532,22 @@ void AI::simulate(float seconds)
 	}
 
 	hkVector4 look = racers[racerIndex]->lookDir;
-	(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
+
+		if(raceEnded){
+			hkVector4 racerPos = racers[racerIndex]->body->getPosition();
+			hkSimdReal camX = racerPos.getComponent(0);
+			hkSimdReal camY = racerPos.getComponent(1);
+			hkSimdReal camZ = racerPos.getComponent(2);
+			camX.add(4);
+			camY.add(4);
+			camZ.sub(2);
+			hkVector4 camPos = hkVector4(camX, camY, camZ);
+			racerPos.sub(camPos);
+			(renderer->getCamera())->setLookDir(racerPos(0), racerPos(1), racerPos(2));
+		}
+		else{
+			(renderer->getCamera())->setLookDir(look(0), look(1), look(2));
+		}
 
 	// Reset the player (in case you fall over)
 	if (intention.yPressed)
