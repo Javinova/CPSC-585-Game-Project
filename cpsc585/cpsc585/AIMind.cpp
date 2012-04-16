@@ -1,8 +1,9 @@
 #include "AIMind.h"
 
 
-AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName)
+AIMind::AIMind(Racer* _racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName, std::string _colour)
 {
+	colour = _colour;
 	racerName = _racerName;
 	numberOfRacers = NumberOfRacers;
 	numberOfLapsToWin = 3;
@@ -1052,4 +1053,9 @@ int AIMind::getDamageDone()
 int AIMind::getDamageTaken()
 {
 	return knownDamageTaken;
+}
+
+std::string AIMind::getRacerColour()
+{
+	return colour;
 }

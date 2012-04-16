@@ -16,7 +16,7 @@ enum TypeOfRacer { PLAYER, COMPUTER };
 class AIMind
 {
 public:
-	AIMind(Racer* racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName);
+	AIMind(Racer* racer, TypeOfRacer _racerType, int NumberOfRacers, std::string _racerName, std::string _colour);
 	~AIMind(void);
 	void update(HUD* hud, Intention intention, float seconds, Waypoint* waypoints[], Racer* racers[], AIMind* racerPlacement[], Waypoint* buildingWaypoint);
 	void togglePlayerComputerAI(Waypoint* waypoints[]);
@@ -45,6 +45,7 @@ public:
 	TypeOfRacer getTypeOfRacer();
 	bool isfinishedRace();
 	std::string getRacerName();
+	std::string getRacerColour();
 
 	int numberOfLapsToWin;
 
@@ -76,6 +77,7 @@ private:
 	TypeOfRacer racerType;
 
 	std::string racerName;
+	std::string colour;
 
 	int currentWaypoint;
 	int checkPointTime;
