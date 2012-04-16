@@ -40,6 +40,7 @@ private:
 	void initializeCheckpoints();
 	void displayPostGameStatistics();
 	std::string boolToString(bool boolean);
+	std::string getSpaces(std::string input, int numSpaces);
 
 	Renderer* renderer;
 	Input* input;

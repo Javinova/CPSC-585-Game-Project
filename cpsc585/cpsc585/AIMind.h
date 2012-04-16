@@ -53,6 +53,7 @@ private:
 	void acquireAmmo();
 	void upgrade();
 	void downgrade();
+	void reset(Waypoint* waypoints[]);
 	float calculateAngleToPosition(hkVector4* position);
 
 	Racer* racer;
