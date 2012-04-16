@@ -355,7 +355,7 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					to make turns more successfully.
 				*/
 				bool rubberBanding = true; // Turn this off if multiplayer
-
+				float cheatingSpeed = 0.0f;
 				float baseSpeed = 0.0f;
 				if(rubberBanding){
 					int playerPlacement = 0;
@@ -384,9 +384,17 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 						else{
 							baseSpeed = 1.0f;
 						}
+						//if(waypoints[currentWaypoint]->getWaypointType() == WAY_POINT &&
+						//	waypoints[currentWaypoint + 1]->getWaypointType() == WAY_POINT){
+						//	cheatingSpeed = 0.1f;
+						//}
 					}
 					else{ // Teleport the racers that are behind closer to the player if they get too far behind
-
+						
+						if(waypoints[currentWaypoint]->getWaypointType() == WAY_POINT &&
+							waypoints[currentWaypoint + 1]->getWaypointType() == WAY_POINT){
+							cheatingSpeed = 0.5f;
+						}
 						baseSpeed = 1.0f;
 						int distance = racerPlacement[indexOfPlayer]->getOverallPosition() - overallPosition;
 						srand((unsigned)time(0));
@@ -472,8 +480,9 @@ void AIMind::update(HUD* hud, Intention intention, float seconds, Waypoint* wayp
 					timeSinceTeleport = 0;
 					teleportedRecently = false;
 				}
+				
 
-				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue() + extraSpeed);
+				racer->accelerate(seconds, baseSpeed + speedBoost->getBoostValue() + extraSpeed + cheatingSpeed);
 
 
 
